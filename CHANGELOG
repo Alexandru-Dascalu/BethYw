@@ -1,0 +1,6 @@
+
+v1.0.4 - Tweak Javadoc block comments for BethYw::parseMeasureArg()
+v1.0.3 - Tweak Javadoc block comments for Measure::getDifference() and Measure::getAverage()
+v1.0.2 - Tweak Javadoc block comment variable names to be consistent
+v1.0.1 - Delete erroneously included binaries
+v1.0   — Initial coursework release

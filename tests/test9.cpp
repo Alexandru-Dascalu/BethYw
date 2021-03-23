@@ -51,7 +51,7 @@ SCENARIO( "an Area instance can contain Measure instances", "[Area][Measures]" )
 
         AND_THEN( "the Measure instance is equal to the original" ) {
 
-          Measure &newMeasure = area.getMeasure(codenameLower);
+          const Measure &newMeasure = area.getMeasure(codenameLower);
           REQUIRE( measure == newMeasure );
 
         } // AND_THEN
@@ -90,10 +90,10 @@ SCENARIO( "an Area instance can contain Measure instances", "[Area][Measures]" )
 
         AND_THEN( "the Measure instances are equal to the original" ) {
 
-          Measure &newMeasure1 = area.getMeasure(codename1);
+          const Measure &newMeasure1 = area.getMeasure(codename1);
           REQUIRE( measure1 == newMeasure1 );
 
-          Measure &newMeasure2 = area.getMeasure(codename2);
+          const Measure &newMeasure2 = area.getMeasure(codename2);
           REQUIRE( measure2 == newMeasure2 );
 
         } // AND_THEN

@@ -1,6 +1,3 @@
-
-
-
 /*
   +---------------------------------------+
   | BETH YW? WELSH GOVERNMENT DATA PARSER |
@@ -15,5 +12,5 @@
 #include "bethyw.h"
 
 int main(int argc, char *argv[]) {
-  return BethYw::run(argc, argv);
+    return BethYw::run(argc, argv);
 }

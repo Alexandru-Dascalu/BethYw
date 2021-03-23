@@ -17,6 +17,7 @@
 #include <sstream>
 #include <cstdio>
 #include <iostream>
+#include <vector>
 #include <map>
 #include <algorithm>
 #include <math.h>
@@ -255,7 +256,7 @@ std::string Measure::formatYear(const Measure& measure, int year) {
    * the decimal points*/
   int formattedYearWidth = measure.getMaxValueWidth() + 7;
   //add 2 to account for space after and end of string character
-  char formattedYear[formattedYearWidth + 2];
+  std::vector<char> buffer = std::vector<char>(formattedYearWidth + 2);
 
   /*using string stream instead of making a stream directly with concatenation as 
    * in C++ you can not concatenate ints, doubles and C-style strings with strings
@@ -263,13 +264,13 @@ std::string Measure::formatYear(const Measure& measure, int year) {
   std::stringstream formatStream;
   formatStream << "%" << formattedYearWidth << "d ";
 
-  if(snprintf(formattedYear, formattedYearWidth + 2, formatStream.str().c_str(), 
+  if(snprintf(buffer.data(), formattedYearWidth + 2, formatStream.str().c_str(), 
       year) < 0) {
 
     throw std::ios_base::failure("Formatting year string failed for " + year);
   }
 
-  return std::string(formattedYear);
+  return std::string(buffer.data());
 }
 
 std::string Measure::formatValue(const Measure& measure, double value) {
@@ -277,7 +278,7 @@ std::string Measure::formatValue(const Measure& measure, double value) {
    * the decimal points*/
   int formattedValueWidth = measure.getMaxValueWidth() + 7;
   //add 2 to account for space after and end of string character
-  char formattedValue[formattedValueWidth + 2];
+  std::vector<char> buffer = std::vector<char>(formattedValueWidth + 2);
 
   /*using string stream instead of making a stream directly with concatenation as 
    * in C++ you can not concatenate ints, doubles and C-style strings with strings
@@ -285,14 +286,14 @@ std::string Measure::formatValue(const Measure& measure, double value) {
   std::stringstream formatStream;
   formatStream << "%" << formattedValueWidth << ".6f ";
 
-  if(snprintf(formattedValue, formattedValueWidth + 2, formatStream.str().c_str(), 
+  if(snprintf(buffer.data(), formattedValueWidth + 2, formatStream.str().c_str(), 
       value) < 0) {
 
     throw std::ios_base::failure("Formatting value string failed for " + 
       std::to_string(value));
   }
 
-  return std::string(formattedValue); 
+  return std::string(buffer.data()); 
 }
 
 std::string Measure::formatHeading(const Measure& measure, std::string& heading) {
@@ -300,14 +301,14 @@ std::string Measure::formatHeading(const Measure& measure, std::string& heading)
    * the decimal points*/
   int formattedStringWidth = measure.getMaxValueWidth() + 7;
   //add 2 to account for space after and end of string character
-  char formattedString[formattedStringWidth + 2];
+  std::vector<char> buffer = std::vector<char>(formattedStringWidth + 2);
   
-  if(snprintf(formattedString, formattedStringWidth + 2, "%s ", heading.c_str()) < 0) {
+  if(snprintf(buffer.data(), formattedStringWidth + 2, "%s ", heading.c_str()) < 0) {
 
     throw std::ios_base::failure("Formatting string failed");
   }
 
-  return std::string(formattedString);
+  return std::string(buffer.data());
 }
 
 /*Calculates the width of the maximum value stored by this measure. By width, 

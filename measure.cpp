@@ -371,3 +371,11 @@ bool operator==(const Measure& lhs, const Measure& rhs) {
   return equalCodes && equalLabels && equalMeasureValues;
 }
 
+Measure& Measure::operator=(const Measure& other) {
+  for(auto it = other.values.begin(); it != other.values.end(); it++) {
+    values[it->first] = it->second;
+  }
+
+  return *this;
+}
+

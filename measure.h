@@ -23,10 +23,6 @@
 /*
   The Measure class contains a measure code, label, and a container for readings
   from across a number of years.
-
-  TODO: Based on your implementation, there may be additional constructors
-  or functions you implement here, and perhaps additional operators you may wish
-  to overload.
 */
 class Measure {
 private:
@@ -63,6 +59,7 @@ public:
 
   friend std::ostream& operator<<(std::ostream& stream, const Measure& measure);
   friend bool operator==(const Measure& lhs, const Measure& rhs);
+  Measure& operator=(const Measure& other);
 };
 
 #endif // MEASURE_H_

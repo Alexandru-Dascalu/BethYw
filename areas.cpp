@@ -382,27 +382,6 @@ void Areas::populateFromAuthorityCodeCSV(std::istream &is, const BethYw::SourceC
     the stream is not open/valid/has any contents, or an unexpected type
     is passed in.
     std::out_of_range if there are not enough columns in cols
-
-  @see
-    See datasets.h for details of the values variable type can have
-
-  @see
-    See datasets.h for details of how the variable cols is organised
-
-  @see
-    See bethyw.cpp for details of how the variable areasFilter is created
-
-  @example
-    InputFile input("data/popu1009.json");
-    auto is = input.open();
-
-    auto cols = InputFiles::DATASETS["popden"].COLS;
-
-    Areas data = Areas();
-    areas.populate(
-      is,
-      DataType::WelshStatsJSON,
-      cols);
 */
 void Areas::populate(std::istream& is,const BethYw::SourceDataType& type,
                      const BethYw::SourceColumnMapping& cols) noexcept(false) {

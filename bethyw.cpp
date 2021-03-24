@@ -77,7 +77,7 @@ int BethYw::run(int argc, char *argv[]) {
     std::cout << data.toJSON() << std::endl;
   } else {
     // The output as tables
-    // std::cout << data << std::endl;
+     std::cout << data << std::endl;
   }
 
   return 0;

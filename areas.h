@@ -27,10 +27,16 @@
 #include <string>
 #include <tuple>
 #include <unordered_set>
-#include <unordered_map>
+#include <map>
 
+#include "lib_json.hpp"
 #include "datasets.h"
 #include "area.h"
+
+/*
+  An alias for the imported JSON parsing library.
+*/
+using json = nlohmann::json;
 
 /*
   An alias for filters based on strings such as categorisations e.g. area,
@@ -46,7 +52,7 @@ using YearFilterTuple = std::tuple<unsigned int, unsigned int>;
 /*
   An alias for the data within an Areas object stores Area objects.
 */
-using AreasContainer = std::unordered_map<std::string, Area>;
+using AreasContainer = std::map<std::string, Area>;
 
 /*
   Areas is a class that stores all the data categorised by area. The 
@@ -89,6 +95,10 @@ public:
       noexcept(false);
 
   std::string toJSON() const;
+
+  friend std::ostream& operator<<(std::ostream& stream, const Areas& data);
+
+  friend void to_json(json& j, const Areas& areas);
 };
 
 #endif // AREAS_H

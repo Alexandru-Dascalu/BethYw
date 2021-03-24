@@ -19,6 +19,13 @@
 #include <iostream>
 #include "measure.h"
 
+#include "lib_json.hpp"
+
+/*
+  An alias for the imported JSON parsing library.
+*/
+using json = nlohmann::json;
+
 /*
   An Area object consists of a unique authority code, a container for names
   for the area in any number of different languages, and a container for the
@@ -49,7 +56,9 @@ public:
 
   Area& operator=(const Area& other);
   friend std::ostream& operator<<(std::ostream& stream, const Area& area);
-  friend bool operator==(const Area& lhs, const Area& rhs); 
+  friend bool operator==(const Area& lhs, const Area& rhs);
+
+  friend void to_json(json& j, const Area& area);
 };
 
 #endif // AREA_H_

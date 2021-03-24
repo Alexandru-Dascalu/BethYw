@@ -17,8 +17,8 @@
 #include <cstdio>
 #include <iostream>
 #include <map>
-#include <algorithm>
-#include <cmath>
+
+#include "lib_json.hpp"
 
 /*
   The Measure class contains a measure code, label, and a container for readings
@@ -41,6 +41,7 @@ private:
   static std::string formatValue(const Measure& measure, double value);
   static std::string formatHeading(const Measure& measure, std::string& heading);
 
+  //private method used when printing measure
   int getMaxValueWidth() const noexcept;
 public:
   Measure(std::string code, const std::string& label);
@@ -60,6 +61,8 @@ public:
   friend std::ostream& operator<<(std::ostream& stream, const Measure& measure);
   friend bool operator==(const Measure& lhs, const Measure& rhs);
   Measure& operator=(const Measure& other);
+
+  friend void to_json(nlohmann::json& j, const Measure& measure);
 };
 
 #endif // MEASURE_H_

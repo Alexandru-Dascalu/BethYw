@@ -19,10 +19,9 @@
 #include <stdexcept>
 #include <tuple>
 #include <unordered_set>
-#include <unordered_map>
+#include <map>
 
 #include "lib_json.hpp"
-
 #include "datasets.h"
 #include "areas.h"
 #include "measure.h"
@@ -38,7 +37,7 @@ using json = nlohmann::json;
   @example
     Areas data = Areas();
 */
-Areas::Areas() : areas(std::unordered_map<std::string, Area>()) {
+Areas::Areas() : areas(std::map<std::string, Area>()) {
 
 }
 
@@ -169,13 +168,14 @@ void Areas::populateFromAuthorityCodeCSV(std::istream &is, const BethYw::SourceC
             throw std::runtime_error("Line does not have three comma separated values!");
         }
 
-        /*We only add the area if we should all areas or if the the filter specified this area code.*/
+        /*We only add the area if we should all areas or if the filter specified this area code. We make sure to
+         * put the condition for the null pointer first so we do not dereference it later on.*/
         if(areasFilter == nullptr || areasFilter->empty() || areasFilter->find(authorityCode) != areasFilter->end()) {
             Area newArea = Area(authorityCode);
             newArea.setName("eng", englishName);
             newArea.setName("cym", welshName);
 
-            areas.insert({authorityCode, newArea});
+            setArea(authorityCode, newArea);
         }
     }
 }
@@ -479,8 +479,6 @@ void Areas::populate(std::istream &is, const BethYw::SourceDataType &type, const
 }
 
 /*
-  TODO: Areas::toJSON()
-
   Convert this Areas object, and all its containing Area instances, and
   the Measure instances within those, to values.
 
@@ -553,81 +551,21 @@ void Areas::populate(std::istream &is, const BethYw::SourceDataType &type, const
 */
 std::string Areas::toJSON() const {
   json j;
-  
+  to_json(j, *this);
+
   return j.dump();
 }
 
-/*
-  TODO: operator<<(os, areas)
+void to_json(json& j, const Areas& areas) {
+    j = json{ areas.areas };
+}
 
+/*
   Overload the << operator to print all of the imported data.
 
   Output should be formatted like the following to pass the tests. Areas should
   be printed, ordered alphabetically by their local authority code. Measures 
   within each Area should be ordered alphabetically by their codename.
-
-  See the coursework specification for more information, although for reference
-  here is a quick example of how output should be formatted:
-
-    <English name of area 1> / <Welsh name of area 1> (<authority code 1>)
-    <Measure 1 name> (<Measure 1 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
-    <value 1>  <year 2> <year 3> ... <value n> <mean 1> <diff 1> <diffp 1>
-
-    <Measure 2 name> (<Measure 2 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
-    <value 1>  <year 2> <year 3> ... <value n> <mean 2> <diff 2> <diffp 2>
-
-    <Measure 3 name> (<Measure 3 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
-    <value 1>  <year 2> <year 3> ... <value n> <mean 3> <diff 3> <diffp 3>
-
-    ...
-
-    <Measure x name> (<Measure x code>)
-     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
-    <value 1>  <year 2> <year 3> ... <value n> <mean x> <diff x> <diffp x>
-
-
-    <English name of area 2> / <Welsh name of area 2> (<authority code 2>)
-    <Measure 1 name> (<Measure 1 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
-    <value 1>  <year 2> <year 3> ... <value n> <mean 1> <diff 1> <diffp 1>
-
-    <Measure 2 name> (<Measure 2 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
-    <value 1>  <year 2> <year 3> ... <value n> <mean 2> <diff 2> <diffp 2>
-
-    <Measure 3 name> (<Measure 3 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
-    <value 1>  <year 2> <year 3> ... <value n> <mean 3> <diff 3> <diffp 3>
-
-    ...
-
-    <Measure x name> (<Measure x code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n> <mean x> <diff x> <diffp x>
-
-    ...
-
-    <English name of area y> / <Welsh name of area y> (<authority code y>)
-    <Measure 1 name> (<Measure 1 codename>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n> <mean 1> <diff 1> <diffp 1>
-
-    <Measure 2 name> (<Measure 2 codename>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n> <mean 2> <diff 2> <diffp 2>
-
-    <Measure 3 name> (<Measure 3 codename>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n> <mean 3> <diff 3> <diffp 3>
-
-    ...
-
-    <Measure x name> (<Measure x codename>)
-     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
-    <value 1>  <year 2> <year 3> ... <value n> <mean x> <diff x> <diffp x>
 
   With real data, your output should start like this for the command
   bethyw --dir <dir> -p popden -y 1991-1993 (truncated for readability):
@@ -658,10 +596,11 @@ std::string Areas::toJSON() const {
 
   @return
     Reference to the output stream
-
-  @example
-    Areas areas();
-    std::cout << areas << std::end;
 */
+std::ostream& operator<<(std::ostream& stream, const Areas& data) {
+    for(auto it = data.areas.begin(); it != data.areas.end(); it++) {
+        stream << it->second << std::endl;
+    }
 
-
+    return stream;
+}

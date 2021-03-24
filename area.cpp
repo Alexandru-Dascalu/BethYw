@@ -16,7 +16,14 @@
 #include <iostream>
 #include <unordered_map>
 #include <map>
+
+#include "lib_json.hpp"
 #include "area.h"
+
+/*
+  An alias for the imported JSON parsing library.
+*/
+using json = nlohmann::json;
 
 /*
   Construct an Area with a given local authority code.
@@ -264,6 +271,17 @@ bool operator==(const Area& lhs, const Area& rhs) {
   return false;
 }
 
+/*
+  Overload the copy assignment operator for two Area objects. This will ensure that any name or measure in the given
+  area that is not already in this area will be copied over, and if both area have a name for the same language code or
+  a measure with the same codename, the value from the given area will be copied to this area.
+
+  @param other
+    An area object to be copied into this one.
+
+  @return
+    reference to ths area
+*/
 Area& Area::operator=(const Area& other) {
     for(auto it = other.names.begin(); it != other.names.end(); it++) {
         this->names[it->first] = it->second;
@@ -281,4 +299,8 @@ Area& Area::operator=(const Area& other) {
     }
 
     return *this;
+}
+
+void to_json(json& j, const Area& area) {
+    j = json{{ {"names", area.names}, {"measures", area.measures} }};
 }

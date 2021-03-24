@@ -19,9 +19,15 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
+#include "lib_json.hpp"
 #include "measure.h"
+
+/*
+  An alias for the imported JSON parsing library.
+*/
+using json = nlohmann::json;
 
 /*
   Construct a single Measure, that has values across many years.
@@ -371,11 +377,26 @@ bool operator==(const Measure& lhs, const Measure& rhs) {
   return equalCodes && equalLabels && equalMeasureValues;
 }
 
+/*
+  Overload the copy assignment operator for two Measure objects. This will ensure that any year-value pair in the given
+  measure that is not already in this measure will be copied over, and if both measures have a value for the same year,
+  the value from the given measure will be copied to this measure.
+
+  @param other
+    A Measure object to be copied into this one.
+
+  @return
+    reference to ths measure
+*/
 Measure& Measure::operator=(const Measure& other) {
   for(auto it = other.values.begin(); it != other.values.end(); it++) {
     values[it->first] = it->second;
   }
 
   return *this;
+}
+
+void to_json(json& j, const Measure& measure) {
+    j = json{{measure.values}};
 }
 

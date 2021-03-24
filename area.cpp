@@ -126,7 +126,7 @@ void Area::setName(const std::string& lang, const std::string& name) {
     the message:
     No measure found matching <codename>
 */
-const Measure& Area::getMeasure(const std::string& key) const {
+Measure& Area::getMeasure(const std::string& key) {
   /*param reference could be to a string outside the function we should not 
    *change, therefore we make a copy before we make the string lower case.*/
   std::string lowerCaseKey = key;
@@ -262,4 +262,23 @@ bool operator==(const Area& lhs, const Area& rhs) {
   }
 
   return false;
+}
+
+Area& Area::operator=(const Area& other) {
+    for(auto it = other.names.begin(); it != other.names.end(); it++) {
+        this->names[it->first] = it->second;
+    }
+
+    for(auto it = other.measures.begin(); it != other.measures.end(); it++) {
+        /*We need to check if each measure of other is already in this area. This is because Measure has no constructor
+         * with no arguments, and therefore it can not be called if we just did this->measure[it->first] = it->second.
+         * When the measure is not already in this area, we need to manually make a pair and insert it.*/
+        if(this->measures.find(it->first) != this->measures.end()) {
+            this->measures.at(it->first) = it->second;
+        } else {
+            this->measures.insert(std::make_pair(it->first, it->second));
+        }
+    }
+
+    return *this;
 }

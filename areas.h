@@ -6,7 +6,7 @@
   | BETH YW? WELSH GOVERNMENT DATA PARSER |
   +---------------------------------------+
 
-  AUTHOR: 965337
+  AUTHOR: <STUDENT NUMBER>
 
   This file contains the Areas class, which is responsible for parsing data
   from a standard input stream and converting it into a series of objects:
@@ -27,7 +27,7 @@
 #include <string>
 #include <tuple>
 #include <unordered_set>
-#include <vector>
+#include <unordered_map>
 
 #include "datasets.h"
 #include "area.h"
@@ -46,7 +46,7 @@ using YearFilterTuple = std::tuple<unsigned int, unsigned int>;
 /*
   An alias for the data within an Areas object stores Area objects.
 */
-using AreasContainer = std::vector<std::string, Area> ;
+using AreasContainer = std::unordered_map<std::string, Area>;
 
 /*
   Areas is a class that stores all the data categorised by area. The 
@@ -59,8 +59,14 @@ using AreasContainer = std::vector<std::string, Area> ;
   BethYw::SourceDataType.
 */
 class Areas {
+private:
+    AreasContainer areas;
 public:
   Areas();
+
+  void setArea(const std::string& localAuthorityCode, const Area& area) noexcept;
+  Area& getArea(const std::string& localAuthorityCode);
+  int size() const noexcept;
   
   void populateFromAuthorityCodeCSV(
       std::istream& is,

@@ -42,11 +42,12 @@ public:
   const std::string& getName(const std::string& langCode) const;
   void setName(const std::string& lang, const std::string& name);
 
-  const Measure& getMeasure(const std::string& key) const;
+  Measure& getMeasure(const std::string& key);
   void setMeasure(const std::string& codename, const Measure& measure) noexcept;
 
   int size() const noexcept;
 
+  Area& operator=(const Area& other);
   friend std::ostream& operator<<(std::ostream& stream, const Area& area);
   friend bool operator==(const Area& lhs, const Area& rhs); 
 };

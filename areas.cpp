@@ -18,6 +18,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <unordered_set>
+#include <unordered_map>
 
 #include "lib_json.hpp"
 
@@ -31,20 +32,16 @@
 using json = nlohmann::json;
 
 /*
-  TODO: Areas::Areas()
-
   Constructor for an Areas object.
 
   @example
     Areas data = Areas();
 */
-Areas::Areas() {
-  throw std::logic_error("Areas::Areas() has not been implemented!");
+Areas::Areas() : areas(std::unordered_map<std::string, Area>()) {
+
 }
 
 /*
-  TODO: Areas::setArea(localAuthorityCode, area)
-
   Add a particular Area to the Areas object.
 
   If an Area already exists with the same local authority code, overwrite all
@@ -60,18 +57,16 @@ Areas::Areas() {
 
   @return
     void
-
-  @example
-    Areas data = Areas();
-    std::string localAuthorityCode = "W06000023";
-    Area area(localAuthorityCode);
-    data.setArea(localAuthorityCode, area);
 */
-
+void Areas::setArea(const std::string& localAuthorityCode, const Area& area) noexcept {
+    if(areas.find(localAuthorityCode) == areas.end()) {
+        areas.insert(std::pair<std::string, Area>(localAuthorityCode, area));
+    } else {
+        areas.find(localAuthorityCode)->second = area;
+    }
+}
 
 /*
-  TODO: Areas::getArea(localAuthorityCode)
-
   Retrieve an Area instance with a given local authority code.
 
   @param localAuthorityCode
@@ -83,21 +78,13 @@ Areas::Areas() {
   @throws
     std::out_of_range if an Area with the set local authority code does not
     exist in this Areas instance
-
-  @example
-    Areas data = Areas();
-    std::string localAuthorityCode = "W06000023";
-    Area area(localAuthorityCode);
-    data.setArea(localAuthorityCode, area);
-    ...
-    Area area2 = areas.getArea("W06000023");
 */
-
+Area& Areas::getArea(const std::string& localAuthorityCode) {
+    return areas.at(localAuthorityCode);
+}
 
 /*
-  TODO: Areas::size()
-
-  Retrieve the number of Areas within the container. This function should be 
+  Retrieve the number of Areas within the container. This function should be
   callable from a constant context, not modify the state of the instance, and
   must promise not throw an exception.
 
@@ -112,7 +99,9 @@ Areas::Areas() {
     
     auto size = areas.size(); // returns 1
 */
-
+int Areas::size() const noexcept {
+    return areas.size();
+}
 
 /*
   TODO: Areas::populateFromAuthorityCodeCSV(is, cols, areasFilter)
@@ -283,6 +272,7 @@ void Areas::populateFromAuthorityCodeCSV(
   TODO: Areas::populateFromAuthorityByYearCSV(is,
                                               cols,
                                               areasFilter,
+                                              measuresFilter,
                                               yearFilter)
 
   This function imports CSV files that contain a single measure. The 

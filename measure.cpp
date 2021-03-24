@@ -14,7 +14,6 @@
 
 #include <stdexcept>
 #include <string>
-#include <sstream>
 #include <cstdio>
 #include <iostream>
 #include <vector>

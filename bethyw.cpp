@@ -288,9 +288,7 @@ std::unordered_set<std::string> BethYw::parseAreasArg(cxxopts::ParseResult& args
 }
 
 /*
-  TODO: BethYw::parseMeasuresArg(args)
-
-  Parse the measures command line argument, which is optional. If it doesn't 
+  Parse the measures command line argument, which is optional. If it doesn't
   exist or exists and contains "all" as value (any case), all measures should
   be imported.
 

@@ -18,7 +18,7 @@
 #include <iostream>
 #include <map>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 /*
   The Measure class contains a measure code, label, and a container for readings

@@ -1,6 +1,3 @@
-
-
-
 /*
   +---------------------------------------+
   | BETH YW? WELSH GOVERNMENT DATA PARSER |
@@ -13,9 +10,6 @@
 
   Areas is also responsible for importing data from a stream (using the
   various populate() functions) and creating the Area and Measure objects.
-
-  This file contains numerous functions you must implement. Each function you
-  must implement has a TODO block comment. 
 */
 
 #include <stdexcept>

@@ -33,7 +33,7 @@ private:
 protected:
   InputSource(const std::string& source);
 public:
-  const std::string& getSource() const;
+  const std::string& getSource() const noexcept;
   virtual std::istream& open() = 0;
 };
 

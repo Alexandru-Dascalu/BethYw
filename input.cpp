@@ -28,7 +28,7 @@ InputSource::InputSource(const std::string& source) : source(source) {
   @return
     A non-modifable value for the source passed into the construtor.
 */
-const std::string& InputSource::getSource() const {
+const std::string& InputSource::getSource() const noexcept {
   return source;
 }
 

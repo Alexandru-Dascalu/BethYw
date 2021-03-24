@@ -10,13 +10,6 @@
   don't need a class here. Classes are for modelling data, and so forth, but
   here the code is pretty much a sequential block of code (BethYw::run())
   calling a series of helper functions.
-
-  TODO: This file contains numerous functions you must implement. Each one
-  is denoted with a TODO in the block comment. Note that some code has been
-  provided in some functions to get you started, but you should read through
-  this code and make sure it is safe and complete. You may need to remove or
-  modify the provided code to get your program to work fully. You may implement
-  additional functions not specified.
 */
 
 #include <iostream>
@@ -70,14 +63,14 @@ int BethYw::run(int argc, char *argv[]) {
 
   Areas data = Areas();
 
-  // BethYw::loadAreas(data, dir, areasFilter);
-  //
-  // BethYw::loadDatasets(data,
-  //                      dir,
-  //                      datasetsToImport,
-  //                      areasFilter,
-  //                      measuresFilter,
-  //                      yearsFilter);
+//   BethYw::loadAreas(data, dir, areasFilter);
+//
+//   BethYw::loadDatasets(data,
+//                        dir,
+//                        datasetsToImport,
+//                        areasFilter,
+//                        measuresFilter,
+//                        yearsFilter);
 
   if (args.count("json")) {
     // The output as JSON

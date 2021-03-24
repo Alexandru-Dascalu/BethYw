@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <stdexcept>
 #include <tuple>
 #include <unordered_set>
@@ -80,7 +81,11 @@ void Areas::setArea(const std::string& localAuthorityCode, const Area& area) noe
     exist in this Areas instance
 */
 Area& Areas::getArea(const std::string& localAuthorityCode) {
-    return areas.at(localAuthorityCode);
+    try {
+        return areas.at(localAuthorityCode);
+    } catch (std::out_of_range& ex) {
+        throw std::out_of_range("No area found matching " + localAuthorityCode);
+    }
 }
 
 /*
@@ -104,9 +109,7 @@ int Areas::size() const noexcept {
 }
 
 /*
-  TODO: Areas::populateFromAuthorityCodeCSV(is, cols, areasFilter)
-
-  This function specifically parses the compiled areas.csv file of local 
+  This function specifically parses the compiled areas.csv file of local
   authority codes, and their names in English and Welsh.
 
   This is a simple dataset that is a comma-separated values file (CSV), where
@@ -133,33 +136,48 @@ int Areas::size() const noexcept {
   @return
     void
 
-  @see
-    See datasets.h for details of how the variable cols is organised
-
-  @see
-    See bethyw.cpp for details of how the variable areasFilter is created
-
-  @example
-    InputFile input("data/areas.csv");
-    auto is = input.open();
-
-    auto cols = InputFiles::AREAS.COLS;
-
-    auto areasFilter = BethYw::parseAreasArg();
-
-    Areas data = Areas();
-    areas.populateFromAuthorityCodeCSV(is, cols, &areasFilter);
-
   @throws 
     std::runtime_error if a parsing error occurs (e.g. due to a malformed file)
     std::out_of_range if there are not enough columns in cols
 */
-void Areas::populateFromAuthorityCodeCSV(
-    std::istream &is,
-    const BethYw::SourceColumnMapping &cols,
-    const StringFilterSet * const areasFilter) {
-  throw std::logic_error(
-    "Areas::populateFromAuthorityCodeCSV() has not been implemented!");
+void Areas::populateFromAuthorityCodeCSV(std::istream &is, const BethYw::SourceColumnMapping &cols,
+    const StringFilterSet* const areasFilter) {
+
+    if(cols.size() != 3) {
+        throw std::out_of_range("Not enough columns in cols mapping!");
+    }
+
+    std::string line;
+    std::stringstream lineStream;
+
+    //read and throw away first line, containing headings
+    std::getline(is, line);
+
+    while(std::getline(is, line)) {
+        lineStream.str(line);
+        lineStream.clear();
+
+        std::string authorityCode;
+        std::string englishName;
+        std::string welshName;
+
+        std::getline(lineStream, authorityCode, ',');
+        std::getline(lineStream, englishName, ',');
+        std::getline(lineStream, welshName, ',');
+
+        if(authorityCode == "" || englishName == "" || welshName == "") {
+            throw std::runtime_error("Line does not have three comma separated values!");
+        }
+
+        /*We only add the area if we should all areas or if the the filter specified this area code.*/
+        if(areasFilter == nullptr || areasFilter->empty() || areasFilter->find(authorityCode) != areasFilter->end()) {
+            Area newArea = Area(authorityCode);
+            newArea.setName("eng", englishName);
+            newArea.setName("cym", welshName);
+
+            areas.insert({authorityCode, newArea});
+        }
+    }
 }
 
 /*

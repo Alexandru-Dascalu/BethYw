@@ -17,6 +17,7 @@
 #include "../datasets.h"
 #include "../areas.h"
 
+//add test for when area filter is not empty!
 SCENARIO( "areas.csv can be correctly parsed", "[Areas][authorityCodeCSV]" ) {
 
   auto get_istream = [](const std::string &path) {

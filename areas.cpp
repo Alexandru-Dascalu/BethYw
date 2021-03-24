@@ -165,7 +165,7 @@ void Areas::populateFromAuthorityCodeCSV(std::istream &is, const BethYw::SourceC
         std::getline(lineStream, englishName, ',');
         std::getline(lineStream, welshName, ',');
 
-        if(authorityCode == "" || englishName == "" || welshName == "") {
+        if(authorityCode.empty() || englishName.empty() || welshName.empty()) {
             throw std::runtime_error("Line does not have three comma separated values!");
         }
 
@@ -355,8 +355,6 @@ void Areas::populateFromAuthorityCodeCSV(std::istream &is, const BethYw::SourceC
 
 
 /*
-  TODO: Areas::populate(is, type, cols)
-
   Parse data from an standard input stream `is`, that has data of a particular
   `type`, and with a given column mapping in `cols`.
 
@@ -406,24 +404,16 @@ void Areas::populateFromAuthorityCodeCSV(std::istream &is, const BethYw::SourceC
       DataType::WelshStatsJSON,
       cols);
 */
-void Areas::populate(std::istream &is,
-                     const BethYw::SourceDataType &type,
-                     const BethYw::SourceColumnMapping &cols) {
+void Areas::populate(std::istream& is,const BethYw::SourceDataType& type,
+                     const BethYw::SourceColumnMapping& cols) noexcept(false) {
   if (type == BethYw::AuthorityCodeCSV) {
-    populateFromAuthorityCodeCSV(is, cols);
+      populateFromAuthorityCodeCSV(is, cols);
   } else {
     throw std::runtime_error("Areas::populate: Unexpected data type");
   }
 }
 
 /*
-  TODO: Areas::populate(is,
-                        type,
-                        cols,
-                        areasFilter,
-                        measuresFilter,
-                        yearsFilter)
-
   Parse data from an standard input stream, that is of a particular type,
   and with a given column mapping, filtering for specific areas, measures,
   and years, and fill the container.
@@ -498,19 +488,15 @@ void Areas::populate(std::istream &is,
       &measuresFilter,
       &yearsFilter);
 */
-void Areas::populate(
-    std::istream &is,
-    const BethYw::SourceDataType &type,
-    const BethYw::SourceColumnMapping &cols,
-    const StringFilterSet * const areasFilter,
-    const StringFilterSet * const measuresFilter,
-    const YearFilterTuple * const yearsFilter)
-     {
-  if (type == BethYw::AuthorityCodeCSV) {
-    populateFromAuthorityCodeCSV(is, cols, areasFilter);
-  } else {
-    throw std::runtime_error("Areas::populate: Unexpected data type");
-  }
+void Areas::populate(std::istream &is, const BethYw::SourceDataType &type, const BethYw::SourceColumnMapping &cols,
+    const StringFilterSet* const areasFilter, const StringFilterSet* const measuresFilter,
+    const YearFilterTuple* const yearsFilter) {
+
+    if (type == BethYw::AuthorityCodeCSV) {
+        populateFromAuthorityCodeCSV(is, cols, areasFilter);
+    } else {
+        throw std::runtime_error("Areas::populate: Unexpected data type");
+    }
 }
 
 /*

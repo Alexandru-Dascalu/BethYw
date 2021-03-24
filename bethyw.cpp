@@ -63,7 +63,7 @@ int BethYw::run(int argc, char *argv[]) {
 
   Areas data = Areas();
 
-//   BethYw::loadAreas(data, dir, areasFilter);
+   BethYw::loadAreas(data, dir, areasFilter);
 //
 //   BethYw::loadDatasets(data,
 //                        dir,
@@ -416,8 +416,6 @@ bool BethYw::is4DigitInt(const int num) {
 }
 
 /*
-  TODO: BethYw::loadAreas(areas, dir, areasFilter)
-
   Load the areas.csv file from the directory `dir`. Parse the file and
   create the appropriate Area objects inside the Areas object passed to
   the function in the `areas` argument.
@@ -444,13 +442,11 @@ bool BethYw::is4DigitInt(const int num) {
 
   @return
     void
-
-  @example
-    Areas areas();
-
-    BethYw::loadAreas(areas, "data", BethYw::parseAreasArg(args));
 */
-
+void BethYw::loadAreas(Areas& areas, const std::string& filePath, const StringFilterSet& filters) {
+    InputFile file(filePath);
+    areas.populate(file.open(), BethYw::AuthorityCodeCSV, BethYw::InputFiles::AREAS.COLS, &filters);
+}
 
 /*
   TODO: BethYw::loadDatasets(areas,

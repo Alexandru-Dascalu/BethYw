@@ -1,6 +1,3 @@
-
-
-
 /*
   +---------------------------------------+
   | BETH YW? WELSH GOVERNMENT DATA PARSER |
@@ -24,42 +21,42 @@
 
 SCENARIO( "the datasets program argument can be parsed correctly", "[args][datasets]" ) {
 
-  // GIVEN("no --datasets argument") {
+   GIVEN("no --datasets argument") {
 
-  //   WHEN("the argument is --measures with a value") {
+     WHEN("the argument is --measures with a value") {
 
-  //     Argv argv({"test", "--measures", "pop"});
-  //     auto** actual_argv = argv.argv();
-  //     auto argc          = argv.argc();
+       Argv argv({"test", "--measures", "pop"});
+       auto** actual_argv = argv.argv();
+       auto argc          = argv.argc();
 
-  //     auto cxxopts = BethYw::cxxoptsSetup();
-  //     auto args    = cxxopts.parse(argc, actual_argv);
+       auto cxxopts = BethYw::cxxoptsSetup();
+       auto args    = cxxopts.parse(argc, actual_argv);
 
-  //     THEN( "the argument value is parsed without exception" ) {
+       THEN( "the argument value is parsed without exception" ) {
 
-  //       REQUIRE_NOTHROW( BethYw::parseDatasetsArg(args) );
+         REQUIRE_NOTHROW( BethYw::parseDatasetsArg(args) );
 
-  //       AND_THEN( "the response is a container with 7 values" ) {
+         AND_THEN( "the response is a container with 7 values" ) {
 
-  //         auto datasets = BethYw::parseDatasetsArg(args);
-  //         REQUIRE( datasets.size() == 7 );
+           auto datasets = BethYw::parseDatasetsArg(args);
+           REQUIRE( datasets.size() == 7 );
 
-  //       } // AND_THEN
+         } // AND_THEN
 
-  //       AND_THEN ( "the correct InputFileSource instances are returned by numerical index" ) {
+         AND_THEN ( "the correct InputFileSource instances are returned by numerical index" ) {
 
-  //         auto datasets = BethYw::parseDatasetsArg(args);
-  //         REQUIRE( datasets.at(0).NAME == "Population density" );
-  //         REQUIRE( datasets.at(1).NAME == "Active Businesses" );
-  //         REQUIRE( datasets.at(2).NAME == "Air Quality Indicators" );
-  //         REQUIRE( datasets.at(3).NAME == "Rail passenger journeys" );
-  //         REQUIRE( datasets.at(4).NAME == "Population density" );
-  //         REQUIRE( datasets.at(5).NAME == "Population" );
-  //         REQUIRE( datasets.at(6).NAME == "Land area" );
-  //       }
-  //     }
-  //   }//WHEN
-  // }//GIVEN
+           auto datasets = BethYw::parseDatasetsArg(args);
+           REQUIRE( datasets.at(0).NAME == "Population density" );
+           REQUIRE( datasets.at(1).NAME == "Active Businesses" );
+           REQUIRE( datasets.at(2).NAME == "Air Quality Indicators" );
+           REQUIRE( datasets.at(3).NAME == "Rail passenger journeys" );
+           REQUIRE( datasets.at(4).NAME == "Population density" );
+           REQUIRE( datasets.at(5).NAME == "Population" );
+           REQUIRE( datasets.at(6).NAME == "Land area" );
+         }
+       }
+     }//WHEN
+   }//GIVEN
 
   GIVEN( "a --datasets program argument and value" ) {
 

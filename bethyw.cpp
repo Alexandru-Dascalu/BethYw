@@ -192,6 +192,8 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(cxxopts::ParseResu
   //catch exception thrown when dataset arguments are nor given
   } catch(const cxxopts::OptionParseException& ex) {
     addAllDatasets(datasetsToImport);
+  } catch(const std::domain_error& ex) {
+      addAllDatasets(datasetsToImport);
   }
 
   return datasetsToImport;
@@ -269,14 +271,11 @@ std::unordered_set<std::string> BethYw::parseAreasArg(cxxopts::ParseResult& args
 
     //set might be empty or not, depending on if arguments includes all
     return areas;
-
   } catch(const cxxopts::OptionParseException& ex) {
-    //return set that is empty
-    return areas;
-  //what exception is thrown here?
-  } catch(const std::exception& ex) {
-    //return set that is empty
-    return areas;
+      //return set that is empty
+      return areas;
+  } catch(const std::domain_error& ex) {
+      return areas;
   }
 }
 
@@ -321,10 +320,8 @@ std::unordered_set<std::string> BethYw::parseMeasuresArg(cxxopts::ParseResult& a
   } catch(const cxxopts::OptionParseException& ex) {
     //return set that is empty
     return measures;
-  //what exception is thrown here?
-  } catch(const std::exception& ex) {
-    //return set that is empty
-    return measures;
+  } catch(const std::domain_error& ex) {
+      return measures;
   }
 }
 
@@ -368,9 +365,9 @@ std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg(cxxopts::ParseResul
       }
     //if that fails, then the argument is not an int, check if it is a range
     } else {
-      size_t hyphenIndex = inputYears.find("-");
+      size_t hyphenIndex = inputYears.find('-');
 
-      //if it does not have a hypeh, it is invalid
+      //if it does not have a hyphen, it is invalid
       if(hyphenIndex == std::string::npos) {
         throw std::invalid_argument("Invalid input for years argument");
       }
@@ -398,6 +395,8 @@ std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg(cxxopts::ParseResul
     }
   } catch(const cxxopts::OptionParseException& ex) {
     return std::tuple<unsigned int, unsigned int>(0, 0);
+  } catch(const std::domain_error& ex) {
+      return std::tuple<unsigned int, unsigned int>(0, 0);
   }
 }
 
@@ -449,13 +448,6 @@ void BethYw::loadAreas(Areas& areas, const std::string& filePath, const StringFi
 }
 
 /*
-  TODO: BethYw::loadDatasets(areas,
-                             dir,
-                             datasetsToImport,
-                             areasFilter,
-                             measuresFilter,
-                             yearsFilter)
-
   Import datasets from `datasetsToImport` as files in `dir` into areas, and
   filtering them with the `areasFilter`, `measuresFilter`, and `yearsFilter`.
 

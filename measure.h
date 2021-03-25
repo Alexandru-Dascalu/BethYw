@@ -34,7 +34,7 @@ private:
   std::map<int, double> values;
 
   //private methods I made to help me
-  static std::string& toLower(std::string& str);
+  static std::string toLower(const std::string& str);
 
   //these ones are used to format the string output of the measure object
   static std::string formatYear(const Measure& measure, int year);
@@ -44,7 +44,7 @@ private:
   //private method used when printing measure
   int getMaxValueWidth() const noexcept;
 public:
-  Measure(std::string code, const std::string& label);
+  Measure(const std::string& code, const std::string& label);
 
   const std::string& getCodename() const noexcept;
   const std::string& getLabel() const noexcept;

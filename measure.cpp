@@ -41,18 +41,18 @@ using json = nlohmann::json;
   @param label
     Human-readable (i.e. nice/explanatory) label for the measure.
 */
-Measure::Measure(std::string codename, const std::string& label) : 
-  code(toLower(codename)), label(label) {
+Measure::Measure(const std::string& codename, const std::string& label) : code(Measure::toLower(codename)), label(label) {
 
 }
 
 /*Stolen from https://thispointer.com/converting-a-string-to-upper-lower-case-in-c-using-stl-boost-library/#:~:text=Convert%20a%20String%20to%20Lower%20Case%20using%20STL&text=int%20tolower%20(%20int%20c%20)%3B,function%20each%20of%20them%20i.e.*/
-std::string& Measure::toLower(std::string& str) {
-  std::for_each(str.begin(), str.end(), [](char& c) {
+std::string Measure::toLower(const std::string& str) {
+    std::string copy = str;
+    std::for_each(copy.begin(), copy.end(), [](char& c) {
         c = ::tolower(c);
-  });
+    });
 
-  return str;
+  return copy;
 }
 
 /*

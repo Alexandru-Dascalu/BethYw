@@ -181,12 +181,6 @@ void Areas::populateFromAuthorityCodeCSV(std::istream &is, const BethYw::SourceC
 }
 
 /*
-  TODO: Areas::populateFromWelshStatsJSON(is,
-                                          cols,
-                                          areasFilter,
-                                          measuresFilter,
-                                          yearsFilter)
-
   Data from StatsWales is in the JSON format, and contains three
   top-level keys: odata.metadata, value, odata.nextLink. value contains the
   data we need. Rather than been hierarchical, it contains data as a
@@ -284,7 +278,70 @@ void Areas::populateFromAuthorityCodeCSV(std::istream &is, const BethYw::SourceC
       &measuresFilter,
       &yearsFilter);
 */
+void Areas::populateFromWelshStatsJSON(std::istream &is, const BethYw::SourceColumnMapping & cols,
+                                       const std::unordered_set<std::string>* const areasFilter,
+                                       const std::unordered_set<std::string>* const measuresFilter,
+                                       const std::tuple<unsigned int, unsigned int>* const yearsFilter) {
+    json j;
+    is >> j;
 
+    bool isTrainDataset = cols == BethYw::InputFiles::TRAINS.COLS;
+
+    for(auto& element: j["value"].items()) {
+        auto& data = element.value();
+        const std::string& authorityCode = data.at(cols.at(BethYw::SourceColumn::AUTH_CODE));
+
+        if(areasFilter->empty() || areasFilter->find(authorityCode) != areasFilter->end()) {
+
+            /*I wanted to have the measure code be a const reference, and thus it needs to be initialized when it is
+             * declared. Therefore, I could only do it with a ternary operator. If the dataset file is the train one,
+             * the measure code is a hardcoded value, else it is a value we need to read from the json data.*/
+            const std::string& measureCode = isTrainDataset ? BethYw::InputFiles::TRAINS.COLS.at(BethYw::SourceColumn::SINGLE_MEASURE_CODE)
+                    : (const std::string&) data.at(cols.at(BethYw::SourceColumn::MEASURE_CODE));
+
+            if(measuresFilter->empty() || measuresFilter->find(measureCode) != measuresFilter->end()) {
+                int year = data.at(cols.at(BethYw::SourceColumn::YEAR));
+
+                if(year >= std::get<0>(*yearsFilter) && year <= std::get<1>(*yearsFilter)) {
+                    const std::string& areaEngName = data.at(cols.at(BethYw::SourceColumn::AUTH_NAME_ENG));
+                    const double value = data.at(cols.at(BethYw::SourceColumn::VALUE));
+
+                    //same as before with the measure code, we need to check if the file is the train dataset
+                    const std::string& measureLabel = isTrainDataset ? BethYw::InputFiles::TRAINS.COLS.at(BethYw::SourceColumn::SINGLE_MEASURE_NAME)
+                            : (const std::string&) data.at(cols.at(BethYw::SourceColumn::MEASURE_NAME));
+
+                    try {
+                        /*We use getArea as it already checks if this object has an area with this code.*/
+                        Area& area = this->getArea(authorityCode);
+
+                        /*Same story, since getMeasure throws an exception, we can use it to check if the area has this
+                         * measure already.*/
+                        try {
+                            //in this case, we just need to add/update data for that year
+                            Measure& measure = area.getMeasure(measureCode);
+                            measure.setValue(year, value);
+                        } catch (const std::out_of_range& ex) {
+                            //if the area does not have a measure with this code, make new measure and add it
+                            Measure newMeasure = Measure(measureCode, measureLabel);
+                            newMeasure.setValue(year, value);
+                            area.setMeasure(measureCode, newMeasure);
+                        }
+
+                    } catch (const std::out_of_range& ex) {
+                        /*if out_of_range was thrown, then an area with that code does not already exist, we need to
+                         * create it.*/
+                        Area newArea = Area(authorityCode);
+                        newArea.setName("eng", areaEngName);
+
+                        Measure newMeasure = Measure(measureCode, measureLabel);
+                        newMeasure.setValue(year, value);
+                        newArea.setMeasure(measureCode, newMeasure);
+                    }
+                }
+            }
+        }
+    }
+}
 
 /*
   TODO: Areas::populateFromAuthorityByYearCSV(is,
@@ -494,41 +551,6 @@ void Areas::populate(std::istream &is, const BethYw::SourceDataType &type, const
 
   Read the documentation for how to convert your outcome code to JSON:
     https://github.com/nlohmann/json#arbitrary-types-conversions
-  
-  The JSON should be formatted as such:
-    {
-    "<localAuthorityCode1>" : {
-                              "names": { "<languageCode1>": "<languageName1>",
-                                         "<languageCode2>": "<languageName2>" 
-                                         …
-                                         "<languageCodeN>": "<languageNameN>" }, 
-                              "measures" : { "<year1>": <value1>,
-                                             "<year2>": <value2>,
-                                             …
-                                            "<yearN>": <valueN> }
-                               },
-    "<localAuthorityCode2>" : {
-                              "names": { "<languageCode1>": "<languageName1>",
-                                         "<languageCode2>": "<languageName2>" 
-                                         …
-                                         "<languageCodeN>": "<languageNameN>" }, 
-                              "measures" : { "<year1>": <value1>,
-                                             "<year2>": <value2>,
-                                             …
-                                            "<yearN>": <valueN> }
-                               }
-    ...
-    "<localAuthorityCodeN>" : {
-                              "names": { "<languageCode1>": "<languageName1>",
-                                         "<languageCode2>": "<languageName2>" 
-                                         …
-                                         "<languageCodeN>": "<languageNameN>" }, 
-                              "measures" : { "<year1>": <value1>,
-                                             "<year2>": <value2>,
-                                             …
-                                            "<yearN>": <valueN> }
-                               }
-    }
 
   An empty JSON is "{}" (without the quotes), which you must return if your
   Areas object is empty.

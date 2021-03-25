@@ -257,7 +257,7 @@ void Areas::populateFromWelshStatsJSON(std::istream &is, const BethYw::SourceCol
             if(Areas::isIncludedInFilter(measuresFilter, authorityCode)) {
                 unsigned int year = Areas::parseYear(data.at(cols.at(BethYw::SourceColumn::YEAR)));
 
-                if((std::get<0>(*yearsFilter) == 0 && std::get<1>(*yearsFilter) == 0) || (year >= std::get<0>(*yearsFilter) && year <= std::get<1>(*yearsFilter))) {
+                if(Areas::isInYearRange(yearsFilter, year)) {
                     const std::string& areaEngName = data.at(cols.at(BethYw::SourceColumn::AUTH_NAME_ENG));
                     const double value = data.at(cols.at(BethYw::SourceColumn::VALUE));
 
@@ -300,6 +300,16 @@ void Areas::populateFromWelshStatsJSON(std::istream &is, const BethYw::SourceCol
 
 bool Areas::isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data) {
     return filter->empty() || filter->find(data) != filter->end();
+}
+
+bool Areas::isInYearRange(const std::tuple<unsigned  int, unsigned int>* const yearRange, unsigned int year) {
+    if(std::get<0>(*yearRange) == 0 && std::get<1>(*yearRange) == 0) {
+        return true;
+    } else if(year >= std::get<0>(*yearRange) && year <= std::get<1>(*yearRange)) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 unsigned int Areas::parseYear(const std::string& str) {

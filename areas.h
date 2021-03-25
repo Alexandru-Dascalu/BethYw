@@ -71,6 +71,7 @@ private:
     //private functions to help with calculations
     static unsigned int parseYear(const std::string& str);
     static bool isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data);
+    static bool isInYearRange(const std::tuple<unsigned  int, unsigned int>* const yearRange, unsigned int year);
 
 public:
   Areas();

@@ -187,26 +187,6 @@ void Areas::populateFromAuthorityCodeCSV(std::istream &is, const BethYw::SourceC
   continuous list (e.g. as you would find in a table). For each row in value,
   there is a mapping of various column headings and their respective vaues.
 
-  Therefore, you need to go through the items in value (in a loop)
-  using a JSON library. To help you, I've selected the nlohmann::json
-  library that you must use for your coursework. Read up on how to use it here:
-  https://github.com/nlohmann/json
-
-  Example of using this library:
-    - Reading/parsing in from a stream is very simply using the >> operator:
-        json j;
-        stream >> j;
-
-    - Looping through parsed JSON is done with a simple for each loop. Inside
-      the loop, you can access each using the array syntax, with the key/
-      column name, e.g. data["Localauthority_ItemName_ENG"] gives you the
-      local authority name:
-        for (auto& el : j["value"].items()) {
-           auto &data = el.value();
-           std::string localAuthorityCode = data["Localauthority_ItemName_ENG"];
-           // do stuff here...
-        }
-
   In this function, you will have to parse the JSON datasets, extracting
   the local authority code, English name (the files only contain the English
   names), and each measure by year.
@@ -253,30 +233,6 @@ void Areas::populateFromAuthorityCodeCSV(std::istream &is, const BethYw::SourceC
   @throws 
     std::runtime_error if a parsing error occurs (e.g. due to a malformed file)
     std::out_of_range if there are not enough columns in cols
-
-  @see
-    See datasets.h for details of how the variable cols is organised
-
-  @see
-    See bethyw.cpp for details of how the variable areasFilter is created
-
-  @example
-    InputFile input("data/popu1009.json");
-    auto is = input.open();
-
-    auto cols = InputFiles::DATASETS["popden"].COLS;
-
-    auto areasFilter = BethYw::parseAreasArg();
-    auto measuresFilter = BethYw::parseMeasuresArg();
-    auto yearsFilter = BethYw::parseMeasuresArg();
-
-    Areas data = Areas();
-    areas.populateFromWelshStatsJSON(
-      is,
-      cols,
-      &areasFilter,
-      &measuresFilter,
-      &yearsFilter);
 */
 void Areas::populateFromWelshStatsJSON(std::istream &is, const BethYw::SourceColumnMapping & cols,
                                        const std::unordered_set<std::string>* const areasFilter,
@@ -300,9 +256,9 @@ void Areas::populateFromWelshStatsJSON(std::istream &is, const BethYw::SourceCol
                     : (const std::string&) data.at(cols.at(BethYw::SourceColumn::MEASURE_CODE));
 
             if(measuresFilter->empty() || measuresFilter->find(measureCode) != measuresFilter->end()) {
-                int year = data.at(cols.at(BethYw::SourceColumn::YEAR));
+                unsigned int year = Areas::parseYear(data.at(cols.at(BethYw::SourceColumn::YEAR)));
 
-                if(year >= std::get<0>(*yearsFilter) && year <= std::get<1>(*yearsFilter)) {
+                if((std::get<0>(*yearsFilter) == 0 && std::get<1>(*yearsFilter) == 0) || (year >= std::get<0>(*yearsFilter) && year <= std::get<1>(*yearsFilter))) {
                     const std::string& areaEngName = data.at(cols.at(BethYw::SourceColumn::AUTH_NAME_ENG));
                     const double value = data.at(cols.at(BethYw::SourceColumn::VALUE));
 
@@ -340,6 +296,20 @@ void Areas::populateFromWelshStatsJSON(std::istream &is, const BethYw::SourceCol
                 }
             }
         }
+    }
+}
+
+unsigned int Areas::parseYear(const std::string& str) {
+    /*strtol will put a value in end which is the first character after the
+     * integer in the string. We can check if the whole string is an int by
+     * seeing if end points to the end of string character.*/
+    char* end;
+    unsigned int year = strtol(str.c_str(), &end, 10);
+
+    if(*end == '\0') {
+        return year;
+    } else {
+        throw std::runtime_error("Year value can not be parsed as unsigned int: " + str);
     }
 }
 

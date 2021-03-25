@@ -85,6 +85,8 @@ public:
                                     const std::unordered_set<std::string>* const measuresFilter,
                                     const std::tuple<unsigned int, unsigned int>* const yearsFilter);
 
+    static unsigned int parseYear(const std::string& str);
+
   void populate(
       std::istream& is,
       const BethYw::SourceDataType& type,

@@ -123,7 +123,7 @@ double Measure::getValue(int year) const {
   @param value
     The value for the given year.
 */
-void Measure::setValue(const int& year, const double& value) noexcept {
+void Measure::setValue(const unsigned int& year, const double& value) noexcept {
   values[year] = value;
 }
 

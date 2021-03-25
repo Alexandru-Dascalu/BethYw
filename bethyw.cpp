@@ -17,7 +17,7 @@
 #include <tuple>
 #include <unordered_set>
 #include <vector>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "lib_cxxopts.hpp"
 

@@ -51,7 +51,7 @@ public:
   void setLabel(const std::string& newLabel) noexcept;
 
   double getValue(int year) const;
-  void setValue(const int& year, const double& value) noexcept;
+  void setValue(const unsigned int& year, const double& value) noexcept;
 
   int size() const noexcept;
   double getDifference() const noexcept;

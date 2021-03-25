@@ -247,15 +247,14 @@ void Areas::populateFromWelshStatsJSON(std::istream &is, const BethYw::SourceCol
         auto& data = element.value();
         const std::string& authorityCode = data.at(cols.at(BethYw::SourceColumn::AUTH_CODE));
 
-        if(areasFilter->empty() || areasFilter->find(authorityCode) != areasFilter->end()) {
-
+        if(Areas::isIncludedInFilter(areasFilter, authorityCode)) {
             /*I wanted to have the measure code be a const reference, and thus it needs to be initialized when it is
              * declared. Therefore, I could only do it with a ternary operator. If the dataset file is the train one,
              * the measure code is a hardcoded value, else it is a value we need to read from the json data.*/
             const std::string& measureCode = isTrainDataset ? BethYw::InputFiles::TRAINS.COLS.at(BethYw::SourceColumn::SINGLE_MEASURE_CODE)
                     : (const std::string&) data.at(cols.at(BethYw::SourceColumn::MEASURE_CODE));
 
-            if(measuresFilter->empty() || measuresFilter->find(measureCode) != measuresFilter->end()) {
+            if(Areas::isIncludedInFilter(measuresFilter, authorityCode)) {
                 unsigned int year = Areas::parseYear(data.at(cols.at(BethYw::SourceColumn::YEAR)));
 
                 if((std::get<0>(*yearsFilter) == 0 && std::get<1>(*yearsFilter) == 0) || (year >= std::get<0>(*yearsFilter) && year <= std::get<1>(*yearsFilter))) {
@@ -299,6 +298,10 @@ void Areas::populateFromWelshStatsJSON(std::istream &is, const BethYw::SourceCol
     }
 }
 
+bool Areas::isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data) {
+    return filter->empty() || filter->find(data) != filter->end();
+}
+
 unsigned int Areas::parseYear(const std::string& str) {
     /*strtol will put a value in end which is the first character after the
      * integer in the string. We can check if the whole string is an int by
@@ -314,12 +317,6 @@ unsigned int Areas::parseYear(const std::string& str) {
 }
 
 /*
-  TODO: Areas::populateFromAuthorityByYearCSV(is,
-                                              cols,
-                                              areasFilter,
-                                              measuresFilter,
-                                              yearFilter)
-
   This function imports CSV files that contain a single measure. The 
   CSV file consists of columns containing the authority code and years.
   Each row contains an authority code and values for each year (or no value

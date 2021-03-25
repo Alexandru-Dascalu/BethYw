@@ -86,6 +86,7 @@ public:
                                     const std::tuple<unsigned int, unsigned int>* const yearsFilter);
 
     static unsigned int parseYear(const std::string& str);
+    static bool isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data);
 
   void populate(
       std::istream& is,

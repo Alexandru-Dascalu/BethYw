@@ -67,6 +67,11 @@ using AreasContainer = std::map<std::string, Area>;
 class Areas {
 private:
     AreasContainer areas;
+
+    //private functions to help with calculations
+    static unsigned int parseYear(const std::string& str);
+    static bool isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data);
+
 public:
   Areas();
 
@@ -84,9 +89,6 @@ public:
                                     const std::unordered_set<std::string>* const areasFilter,
                                     const std::unordered_set<std::string>* const measuresFilter,
                                     const std::tuple<unsigned int, unsigned int>* const yearsFilter);
-
-    static unsigned int parseYear(const std::string& str);
-    static bool isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data);
 
   void populate(
       std::istream& is,

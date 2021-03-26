@@ -392,13 +392,13 @@ void Areas::populateFromAuthorityByYearCSV(std::istream& is, const BethYw::Sourc
     const std::string& measureCode = cols.at(BethYw::SourceColumn::SINGLE_MEASURE_CODE);
     const std::string& measureLabel = cols.at(BethYw::SourceColumn::SINGLE_MEASURE_NAME);
 
-    if(Areas::isIncludedInFilter(measuresFilter, measureCode, false)) {
+    if (Areas::isIncludedInFilter(measuresFilter, measureCode, false)) {
         std::string line;
         std::stringstream lineStream;
 
         //read first row, load it in string stream and load years
         std::getline(is, line);
-        if(line.empty()) {
+        if (line.empty()) {
             throw std::runtime_error("CSV file is empty!");
         }
 
@@ -406,26 +406,26 @@ void Areas::populateFromAuthorityByYearCSV(std::istream& is, const BethYw::Sourc
         lineStream.clear();
         std::vector<unsigned int> years = Areas::getYears(lineStream);
 
-        while(std::getline(is, line)) {
+        while (std::getline(is, line)) {
             lineStream.str(line);
             lineStream.clear();
 
             std::string authorityCode;
             std::getline(lineStream, authorityCode, ',');
 
-            if(Areas::isIncludedInFilter(areasFilter, authorityCode, true)) {
+            if (Areas::isIncludedInFilter(areasFilter, authorityCode, true)) {
                 Area newArea = Area(authorityCode);
                 Measure newMeasure = Measure(measureCode, measureLabel);
 
                 std::string value;
-                for(auto it = years.begin(); it != years.end(); it++) {
-                    if(Areas::isInYearRange(yearsFilter, *it)) {
+                for (auto it = years.begin(); it != years.end(); it++) {
+                    if (Areas::isInYearRange(yearsFilter, *it)) {
                         std::getline(lineStream, value, ',');
-                        if(value.empty()) {
+                        if (value.empty()) {
                             throw std::runtime_error("Not enough values for all years in authority by year CSV file!");
                         }
 
-                        if(BethYw::isDouble(value)) {
+                        if (BethYw::isDouble(value)) {
                             double numericalValue = std::stod(value);
                             newMeasure.setValue(*it, numericalValue);
                         }
@@ -443,7 +443,7 @@ std::vector<unsigned int> Areas::getYears(std::stringstream& lineStream) {
     //throw away first element, it is just the heading for the authority code
     std::getline(lineStream, buffer, ',');
 
-    while(std::getline(lineStream, buffer, ',')) {
+    while (std::getline(lineStream, buffer, ',')) {
         if (BethYw::isInt(buffer)) {
             int year = std::stoi(buffer);
 
@@ -503,7 +503,7 @@ void Areas::populate(std::istream& is, const BethYw::SourceDataType& type,
         const std::tuple<unsigned int, unsigned int> emptyRange = std::make_tuple(0, 0);
 
         populateFromWelshStatsJSON(is, cols, &emptySet, &emptySet, &emptyRange);
-    } else if(type == BethYw::AuthorityByYearCSV) {
+    } else if (type == BethYw::AuthorityByYearCSV) {
         populateFromAuthorityByYearCSV(is, cols, nullptr, nullptr, nullptr);
     } else {
         throw std::runtime_error("Areas::populate: Unexpected data type");
@@ -568,9 +568,9 @@ void Areas::populate(std::istream& is, const BethYw::SourceDataType& type, const
         populateFromAuthorityCodeCSV(is, cols, areasFilter);
     } else if (type == BethYw::WelshStatsJSON) {
         populateFromWelshStatsJSON(is, cols, areasFilter, measuresFilter, yearsFilter);
-    } else if(type == BethYw::AuthorityByYearCSV) {
+    } else if (type == BethYw::AuthorityByYearCSV) {
         populateFromAuthorityByYearCSV(is, cols, areasFilter, measuresFilter, yearsFilter);
-    }  else {
+    } else {
         throw std::runtime_error("Areas::populate: Unexpected data type");
     }
 }

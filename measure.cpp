@@ -200,7 +200,7 @@ double Measure::getAverage() const noexcept {
   can be read as a table of numerical values.
 
   Years should be printed in chronological order. Three additional columns
-  should be included at the end of the output, correspodning to the average
+  should be included at the end of the output, corresponding to the average
   value across the years, the difference between the first and last year,
   and the percentage difference between the first and last year.
 
@@ -334,7 +334,7 @@ int Measure::getMaxValueWidth() const noexcept {
      * but after we get its positive counterpart. We will add 1 to the width
      * to account for the minus sign before the number.*/
     } else if(max <= -1) {
-      int numDigitsInMax = log10(max) + 1;
+      int numDigitsInMax = log10(-max) + 1;
       return numDigitsInMax + 1;
     //if max is between -1 and 1, before the decimal point it just has the digit 0
     } else {

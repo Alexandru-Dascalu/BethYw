@@ -264,7 +264,7 @@ std::unordered_set<std::string> BethYw::parseAreasArg(cxxopts::ParseResult& args
     //if arguments does not include all, add args from CLI to set
     if(!containsAllArgument(inputAreas)) {
       for(auto it = inputAreas.begin(); it != inputAreas.end(); it++) {
-        areas.insert(*it);
+        areas.insert(BethYw::toUpper(*it));
       }
       return areas;
     }
@@ -311,7 +311,7 @@ std::unordered_set<std::string> BethYw::parseMeasuresArg(cxxopts::ParseResult& a
     //if arguments does not include all, add args from CLI to set
     if(!containsAllArgument(inputMeasures)) {
       for(auto it = inputMeasures.begin(); it != inputMeasures.end(); it++) {
-        measures.insert(*it);
+        measures.insert(BethYw::toLower(*it));
       }
     }
 
@@ -501,6 +501,16 @@ std::string BethYw::toLower(const std::string& str) {
     std::string copy = str;
     std::for_each(copy.begin(), copy.end(), [](char& c) {
         c = ::tolower(c);
+    });
+
+    return copy;
+}
+
+/*inspired from the method above*/
+std::string BethYw::toUpper(const std::string& str) {
+    std::string copy = str;
+    std::for_each(copy.begin(), copy.end(), [](char& c) {
+        c = ::toupper(c);
     });
 
     return copy;

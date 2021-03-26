@@ -248,14 +248,14 @@ void Areas::populateFromWelshStatsJSON(std::istream &is, const BethYw::SourceCol
         auto& data = element.value();
         const std::string& authorityCode = data.at(cols.at(BethYw::SourceColumn::AUTH_CODE));
 
-        if(Areas::isIncludedInFilter(areasFilter, authorityCode)) {
+        if(Areas::isIncludedInFilter(areasFilter, authorityCode, true)) {
             /*I wanted to have the measure code be a const reference, and thus it needs to be initialized when it is
              * declared. Therefore, I could only do it with a ternary operator. If the dataset file is the train one,
              * the measure code is a hardcoded value, else it is a value we need to read from the json data.*/
             const std::string& measureCode = isTrainDataset ? BethYw::InputFiles::TRAINS.COLS.at(BethYw::SourceColumn::SINGLE_MEASURE_CODE)
                     : (const std::string&) data.at(cols.at(BethYw::SourceColumn::MEASURE_CODE));
 
-            if(Areas::isIncludedInFilter(measuresFilter, authorityCode)) {
+            if(Areas::isIncludedInFilter(measuresFilter, measureCode, false)) {
                 unsigned int year = Areas::parseYear(data.at(cols.at(BethYw::SourceColumn::YEAR)));
 
                 if(Areas::isInYearRange(yearsFilter, year)) {
@@ -301,15 +301,17 @@ void Areas::populateFromWelshStatsJSON(std::istream &is, const BethYw::SourceCol
     }
 }
 
-bool Areas::isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data) {
+bool Areas::isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data, bool caseSensitive) {
     if(filter->empty()) {
         return true;
     } else {
         for(auto it = filter->begin(); it != filter->end(); it++) {
-            std::string lowercaseArg = BethYw::toLower(*it);
+            if(caseSensitive) {
+                return data == *it;
+            } else {
+                std::string lowercaseData = BethYw::toLower(data);
 
-            if(data == lowercaseArg) {
-                return true;
+                return lowercaseData == *it;
             }
         }
 

@@ -25,6 +25,7 @@
 #include "datasets.h"
 #include "areas.h"
 #include "measure.h"
+#include "bethyw.h"
 
 /*
   An alias for the imported JSON parsing library.
@@ -291,6 +292,8 @@ void Areas::populateFromWelshStatsJSON(std::istream &is, const BethYw::SourceCol
                         Measure newMeasure = Measure(measureCode, measureLabel);
                         newMeasure.setValue(year, value);
                         newArea.setMeasure(measureCode, newMeasure);
+
+                        this->setArea(authorityCode, newArea);
                     }
                 }
             }
@@ -299,7 +302,19 @@ void Areas::populateFromWelshStatsJSON(std::istream &is, const BethYw::SourceCol
 }
 
 bool Areas::isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data) {
-    return filter->empty() || filter->find(data) != filter->end();
+    if(filter->empty()) {
+        return true;
+    } else {
+        for(auto it = filter->begin(); it != filter->end(); it++) {
+            std::string lowercaseArg = BethYw::toLower(*it);
+
+            if(data == lowercaseArg) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
 
 bool Areas::isInYearRange(const std::tuple<unsigned  int, unsigned int>* const yearRange, unsigned int year) {

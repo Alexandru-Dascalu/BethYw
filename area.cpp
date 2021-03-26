@@ -19,6 +19,7 @@
 
 #include "lib_json.hpp"
 #include "area.h"
+#include "bethyw.h"
 
 /*
   An alias for the imported JSON parsing library.
@@ -113,8 +114,8 @@ void Area::setName(const std::string& lang, const std::string& name) {
 
   /*param reference could be to a string outside the function we should not 
    *change, therefore we make a copy before we make the string lower case.*/
-  std::string lowerCaseCode = lang;
-  names[Area::toLower(lowerCaseCode)] = name;
+  std::string lowerCaseLanguageCode = BethYw::toLower(lang);
+  names[lowerCaseLanguageCode] = name;
 }
 
 
@@ -136,22 +137,13 @@ void Area::setName(const std::string& lang, const std::string& name) {
 Measure& Area::getMeasure(const std::string& key) {
   /*param reference could be to a string outside the function we should not 
    *change, therefore we make a copy before we make the string lower case.*/
-  std::string lowerCaseKey = key;
-  Area::toLower(lowerCaseKey);
+  std::string lowerCaseKey = BethYw::toLower(key);
 
   try {
     return measures.at(key);
   } catch (std::out_of_range& ex) {
     throw std::out_of_range("No measure found matching " + key);
   }
-}
-
-std::string& Area::toLower(std::string& str) {
-  std::for_each(str.begin(), str.end(), [](char& c) {
-        c = ::tolower(c);
-  });
-
-  return str;
 }
 
 /*
@@ -175,8 +167,7 @@ std::string& Area::toLower(std::string& str) {
 void Area::setMeasure(const std::string& codename, const Measure& measure) noexcept {
   /*param reference could be to a string outside the function we should not 
    *change, therefore we make a copy before we make the string lower case.*/
-  std::string lowerCaseName = codename;
-  Area::toLower(lowerCaseName);
+  std::string lowerCaseName = BethYw::toLower(codename);
 
   if(measures.find(lowerCaseName) == measures.end()) {
     measures.insert(std::pair<std::string, Measure>(lowerCaseName, measure));

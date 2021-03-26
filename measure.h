@@ -33,9 +33,6 @@ private:
    * over the years in ascending order automatically.*/
   std::map<int, double> values;
 
-  //private methods I made to help me
-  static std::string toLower(const std::string& str);
-
   //these ones are used to format the string output of the measure object
   static std::string formatYear(const Measure& measure, int year);
   static std::string formatValue(const Measure& measure, double value);

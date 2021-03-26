@@ -496,4 +496,12 @@ void BethYw::loadAreas(Areas& areas, const std::string& filePath, const StringFi
 */
 
 
+/*Stolen from https://thispointer.com/converting-a-string-to-upper-lower-case-in-c-using-stl-boost-library/#:~:text=Convert%20a%20String%20to%20Lower%20Case%20using%20STL&text=int%20tolower%20(%20int%20c%20)%3B,function%20each%20of%20them%20i.e.*/
+std::string BethYw::toLower(const std::string& str) {
+    std::string copy = str;
+    std::for_each(copy.begin(), copy.end(), [](char& c) {
+        c = ::tolower(c);
+    });
 
+    return copy;
+}

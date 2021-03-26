@@ -76,6 +76,9 @@ std::tuple<unsigned int, unsigned int> parseYearsArg(cxxopts::ParseResult& args)
 bool is4DigitInt(const int num);
 bool isInt(const std::string& str);
 
+//helper function used other files, should be public
+std::string toLower(const std::string& str);
+
 void loadAreas(Areas& areas, const std::string& filePath, const StringFilterSet& filters);
 
 } // namespace BethYw

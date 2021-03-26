@@ -39,7 +39,6 @@ private:
 
   //private function to help me
   bool hasName(const std::string& langCode) const;
-  static std::string& toLower(std::string& str);
 
 public:
   Area(const std::string& localAuthorityCode);

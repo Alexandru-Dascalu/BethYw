@@ -84,7 +84,7 @@ Area& Areas::getArea(const std::string& localAuthorityCode) {
     try {
         return areas.at(localAuthorityCode);
     } catch (std::out_of_range& ex) {
-        throw std::out_of_range("No area found matching " + localAuthorityCode);
+        throw std::out_of_range(std::string("No area found matching ") + localAuthorityCode);
     }
 }
 
@@ -337,7 +337,7 @@ unsigned int Areas::parseYear(const std::string& str) {
     if(*end == '\0') {
         return year;
     } else {
-        throw std::runtime_error("Year value can not be parsed as unsigned int: " + str);
+        throw std::runtime_error(std::string("Year value can not be parsed as unsigned int: ") + str);
     }
 }
 
@@ -549,19 +549,6 @@ void Areas::populate(std::istream &is, const BethYw::SourceDataType &type, const
   
   @return
     std::string of JSON
-
-  @example
-    InputFile input("data/popu1009.json");
-    auto is = input.open();
-
-    auto cols = InputFiles::DATASETS["popden"].COLS;
-
-    auto areasFilter = BethYw::parseAreasArg();
-    auto measuresFilter = BethYw::parseMeasuresArg();
-    auto yearsFilter = BethYw::parseMeasuresArg();
-
-    Areas data = Areas();
-    std::cout << data.toJSON();
 */
 std::string Areas::toJSON() const {
   json j;

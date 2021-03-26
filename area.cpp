@@ -142,7 +142,7 @@ Measure& Area::getMeasure(const std::string& key) {
   try {
     return measures.at(key);
   } catch (std::out_of_range& ex) {
-    throw std::out_of_range("No measure found matching " + key);
+    throw std::out_of_range(std::string("No measure found matching ") + key);
   }
 }
 

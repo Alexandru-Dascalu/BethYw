@@ -100,7 +100,7 @@ double Measure::getValue(int year) const {
   try {
     return values.at(year);
   } catch (const std::out_of_range& ex) {
-    throw std::out_of_range("No value found for year " + year);
+    throw std::out_of_range(std::string("No value found for year ") + std::to_string(year));
   }
 }
 
@@ -263,7 +263,7 @@ std::string Measure::formatYear(const Measure& measure, int year) {
   if(snprintf(buffer.data(), formattedYearWidth + 2, formatStream.str().c_str(), 
       year) < 0) {
 
-    throw std::ios_base::failure("Formatting year string failed for " + year);
+    throw std::ios_base::failure(std::string("Formatting year string failed for ") + std::to_string(year));
   }
 
   return std::string(buffer.data());
@@ -285,7 +285,7 @@ std::string Measure::formatValue(const Measure& measure, double value) {
   if(snprintf(buffer.data(), formattedValueWidth + 2, formatStream.str().c_str(), 
       value) < 0) {
 
-    throw std::ios_base::failure("Formatting value string failed for " + 
+    throw std::ios_base::failure(std::string("Formatting value string failed for ") +
       std::to_string(value));
   }
 

@@ -58,7 +58,7 @@ InputFile::InputFile(const std::string& filePath) : InputSource(filePath),
 */
 std::istream& InputFile::open() {
   if(!fileInputStream.is_open()) {
-    throw std::runtime_error("InputFile::open: Failed to open file " + getSource());
+    throw std::runtime_error(std::string("InputFile::open: Failed to open file ") + getSource());
   }
 
   return fileInputStream;

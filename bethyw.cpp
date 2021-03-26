@@ -42,45 +42,50 @@
   @return
     Exit code
 */
-int BethYw::run(int argc, char *argv[]) {
-  auto cxxopts = BethYw::cxxoptsSetup();
-  auto args = cxxopts.parse(argc, argv);
+int BethYw::run(int argc, char* argv[]) {
+    try {
+        auto cxxopts = BethYw::cxxoptsSetup();
+        auto args = cxxopts.parse(argc, argv);
 
-  // Print the help usage if requested
-  if (args.count("help")) {
-    std::cerr << cxxopts.help() << std::endl;
-    return 0;
-  }
+        // Print the help usage if requested
+        if (args.count("help")) {
+            std::cerr << cxxopts.help() << std::endl;
+            return 0;
+        }
 
-  // Parse data directory argument
-  std::string dir = args["dir"].as<std::string>() + DIR_SEP;
+        // Parse data directory argument
+        std::string dir = args["dir"].as<std::string>() + DIR_SEP;
 
-  // Parse other arguments and import data
-  auto datasetsToImport = BethYw::parseDatasetsArg(args);
-  auto areasFilter      = BethYw::parseAreasArg(args);
-  auto measuresFilter   = BethYw::parseMeasuresArg(args);
-  auto yearsFilter      = BethYw::parseYearsArg(args);
+        // Parse other arguments and import data
+        auto datasetsToImport = BethYw::parseDatasetsArg(args);
+        auto areasFilter = BethYw::parseAreasArg(args);
+        auto measuresFilter = BethYw::parseMeasuresArg(args);
+        auto yearsFilter = BethYw::parseYearsArg(args);
 
-  Areas data = Areas();
+        Areas data = Areas();
 
-   BethYw::loadAreas(data, dir, areasFilter);
-//
-//   BethYw::loadDatasets(data,
-//                        dir,
-//                        datasetsToImport,
-//                        areasFilter,
-//                        measuresFilter,
-//                        yearsFilter);
+        BethYw::loadAreas(data, dir, areasFilter);
 
-  if (args.count("json")) {
-    // The output as JSON
-    std::cout << data.toJSON() << std::endl;
-  } else {
-    // The output as tables
-     std::cout << data << std::endl;
-  }
+        BethYw::loadDatasets(data,
+                             dir,
+                             datasetsToImport,
+                             areasFilter,
+                             measuresFilter,
+                             yearsFilter);
 
-  return 0;
+        if (args.count("json")) {
+            // The output as JSON
+            std::cout << data.toJSON() << std::endl;
+        } else {
+            // The output as tables
+            std::cout << data << std::endl;
+        }
+
+        return 0;
+    } catch (const std::exception& ex) {
+        std::cerr << ex.what() << std::endl;
+        return 1;
+    }
 }
 
 /*
@@ -95,44 +100,44 @@ int BethYw::run(int argc, char *argv[]) {
     auto args = cxxopts.parse(argc, argv);
 */
 cxxopts::Options BethYw::cxxoptsSetup() {
-  cxxopts::Options cxxopts(
-        "bethyw",
-        "Student ID: " + STUDENT_NUMBER + "\n\n"
-        "This program is designed to parse official Welsh Government"
-        " statistics data files.\n");
-    
-  cxxopts.add_options()(
-      "dir",
-      "Directory for input data passed in as files",
-      cxxopts::value<std::string>()->default_value("datasets"))(
+    cxxopts::Options cxxopts(
+            "bethyw",
+            "Student ID: " + STUDENT_NUMBER + "\n\n"
+                                              "This program is designed to parse official Welsh Government"
+                                              " statistics data files.\n");
 
-      "d,datasets",
-      "The dataset(s) to import and analyse as a comma-separated list of codes "
-      "(omit or set to 'all' to import and analyse all datasets)",
-      cxxopts::value<std::vector<std::string>>())(
+    cxxopts.add_options()(
+            "dir",
+            "Directory for input data passed in as files",
+            cxxopts::value<std::string>()->default_value("datasets"))(
 
-      "a,areas",
-      "The areas(s) to import and analyse as a comma-separated list of "
-      "authority codes (omit or set to 'all' to import and analyse all areas)",
-      cxxopts::value<std::vector<std::string>>())(
+            "d,datasets",
+            "The dataset(s) to import and analyse as a comma-separated list of codes "
+            "(omit or set to 'all' to import and analyse all datasets)",
+            cxxopts::value<std::vector<std::string>>())(
 
-      "m,measures",
-      "Select a subset of measures from the dataset(s) "
-      "(omit or set to 'all' to import and analyse all measures)",
-      cxxopts::value<std::vector<std::string>>())(
+            "a,areas",
+            "The areas(s) to import and analyse as a comma-separated list of "
+            "authority codes (omit or set to 'all' to import and analyse all areas)",
+            cxxopts::value<std::vector<std::string>>())(
 
-      "y,years",
-      "Focus on a particular year (YYYY) or "
-      "inclusive range of years (YYYY-ZZZZ)",
-      cxxopts::value<std::string>()->default_value("0"))(
+            "m,measures",
+            "Select a subset of measures from the dataset(s) "
+            "(omit or set to 'all' to import and analyse all measures)",
+            cxxopts::value<std::vector<std::string>>())(
 
-      "j,json",
-      "Print the output as JSON instead of tables.")(
+            "y,years",
+            "Focus on a particular year (YYYY) or "
+            "inclusive range of years (YYYY-ZZZZ)",
+            cxxopts::value<std::string>()->default_value("0"))(
 
-      "h,help",
-      "Print usage.");
+            "j,json",
+            "Print the output as JSON instead of tables.")(
 
-  return cxxopts;
+            "h,help",
+            "Print usage.");
+
+    return cxxopts;
 }
 
 /*
@@ -167,68 +172,68 @@ cxxopts::Options BethYw::cxxoptsSetup() {
  */
 std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(cxxopts::ParseResult& args) {
 
-  // Create the container for the return type
-  std::vector<InputFileSource> datasetsToImport;
+    // Create the container for the return type
+    std::vector<InputFileSource> datasetsToImport;
 
-  // You can get the std::vector of arguments from cxxopts like this.
-  // Note that this function will throw an exception if datasets is not set as 
-  // an argument. Check the documentation! Read it and understand it.
-  try {
-    auto inputDatasets = args["datasets"].as<std::vector<std::string>>();
+    // You can get the std::vector of arguments from cxxopts like this.
+    // Note that this function will throw an exception if datasets is not set as
+    // an argument. Check the documentation! Read it and understand it.
+    try {
+        auto inputDatasets = args["datasets"].as<std::vector<std::string>>();
 
-    if(containsAllArgument(inputDatasets)) {
-      addAllDatasets(datasetsToImport);
-    } else {
-      for(size_t i = 0; i < inputDatasets.size(); i++) {
-
-        const InputFileSource* dataset = getInputSource(inputDatasets[i]);
-        if(dataset != nullptr) {
-          datasetsToImport.push_back(*dataset);
+        if (containsAllArgument(inputDatasets)) {
+            addAllDatasets(datasetsToImport);
         } else {
-          throw std::invalid_argument("No dataset matches key: invalid");
-        }
-      }
-    }
-  //catch exception thrown when dataset arguments are nor given
-  } catch(const cxxopts::OptionParseException& ex) {
-    addAllDatasets(datasetsToImport);
-  } catch(const std::domain_error& ex) {
-      addAllDatasets(datasetsToImport);
-  }
+            for (size_t i = 0; i < inputDatasets.size(); i++) {
 
-  return datasetsToImport;
+                const InputFileSource* dataset = BethYw::getInputSource(inputDatasets[i]);
+                if (dataset != nullptr) {
+                    datasetsToImport.push_back(*dataset);
+                } else {
+                    throw std::invalid_argument("No dataset matches key: invalid");
+                }
+            }
+        }
+        //catch exception thrown when dataset arguments are nor given
+    } catch (const cxxopts::OptionParseException& ex) {
+        addAllDatasets(datasetsToImport);
+    } catch (const std::domain_error& ex) {
+        addAllDatasets(datasetsToImport);
+    }
+
+    return datasetsToImport;
 }
 
 const BethYw::InputFileSource* BethYw::getInputSource(const std::string& datasetArg) {
-  const size_t numDatasets = BethYw::InputFiles::NUM_DATASETS;
-  const auto& allDatasets = BethYw::InputFiles::DATASETS;
+    const size_t numDatasets = BethYw::InputFiles::NUM_DATASETS;
+    const InputFileSource* const allDatasets = BethYw::InputFiles::DATASETS;
 
-  for(size_t i = 0; i < numDatasets; i++) {
-    if(allDatasets[i].CODE == datasetArg) {
-      return &allDatasets[i];
+    for (size_t i = 0; i < numDatasets; i++) {
+        if (allDatasets[i].CODE == datasetArg) {
+            return &allDatasets[i];
+        }
     }
-  }
 
-  return nullptr;
+    return nullptr;
 }
 
 //why does this work if I pass in an unordered set?
 bool BethYw::containsAllArgument(const std::vector<std::string>& arguments) {
-  for(auto it = arguments.begin(); it != arguments.end(); it++) {
-    if(*it == "all") {
-      return true;
+    for (auto it = arguments.begin(); it != arguments.end(); it++) {
+        if (*it == "all") {
+            return true;
+        }
     }
-  }
 
-  return false;
+    return false;
 }
 
 void BethYw::addAllDatasets(std::vector<BethYw::InputFileSource>& datasetsToImport) {
-  const auto& allDatasets = BethYw::InputFiles::DATASETS;
-  const size_t numDatasets = BethYw::InputFiles::NUM_DATASETS;
+    const InputFileSource* const allDatasets = BethYw::InputFiles::DATASETS;
+    const size_t numDatasets = BethYw::InputFiles::NUM_DATASETS;
 
-  for(size_t i = 0; i < numDatasets; i++) {
-      datasetsToImport.push_back(allDatasets[i]);
+    for (size_t i = 0; i < numDatasets; i++) {
+        datasetsToImport.push_back(allDatasets[i]);
     }
 }
 
@@ -256,27 +261,27 @@ void BethYw::addAllDatasets(std::vector<BethYw::InputFileSource>& datasetsToImpo
     message: Invalid input for area argument
 */
 std::unordered_set<std::string> BethYw::parseAreasArg(cxxopts::ParseResult& args) {
-  std::unordered_set<std::string> areas;
+    std::unordered_set<std::string> areas;
 
-  try{
-    auto inputAreas = args["areas"].as<std::vector<std::string>>();
-    
-    //if arguments does not include all, add args from CLI to set
-    if(!containsAllArgument(inputAreas)) {
-      for(auto it = inputAreas.begin(); it != inputAreas.end(); it++) {
-        areas.insert(BethYw::toUpper(*it));
-      }
-      return areas;
+    try {
+        auto inputAreas = args["areas"].as<std::vector<std::string>>();
+
+        //if arguments does not include all, add args from CLI to set
+        if (!containsAllArgument(inputAreas)) {
+            for (auto it = inputAreas.begin(); it != inputAreas.end(); it++) {
+                areas.insert(BethYw::toUpper(*it));
+            }
+            return areas;
+        }
+
+        //set might be empty or not, depending on if arguments includes all
+        return areas;
+    } catch (const cxxopts::OptionParseException& ex) {
+        //return set that is empty
+        return areas;
+    } catch (const std::domain_error& ex) {
+        return areas;
     }
-
-    //set might be empty or not, depending on if arguments includes all
-    return areas;
-  } catch(const cxxopts::OptionParseException& ex) {
-      //return set that is empty
-      return areas;
-  } catch(const std::domain_error& ex) {
-      return areas;
-  }
 }
 
 /*
@@ -303,26 +308,26 @@ std::unordered_set<std::string> BethYw::parseAreasArg(cxxopts::ParseResult& args
     with the message: Invalid input for measures argument
 */
 std::unordered_set<std::string> BethYw::parseMeasuresArg(cxxopts::ParseResult& args) {
-  std::unordered_set<std::string> measures;
+    std::unordered_set<std::string> measures;
 
-  try{
-    auto inputMeasures = args["measures"].as<std::vector<std::string>>();
+    try {
+        auto inputMeasures = args["measures"].as<std::vector<std::string>>();
 
-    //if arguments does not include all, add args from CLI to set
-    if(!containsAllArgument(inputMeasures)) {
-      for(auto it = inputMeasures.begin(); it != inputMeasures.end(); it++) {
-        measures.insert(BethYw::toLower(*it));
-      }
+        //if arguments does not include all, add args from CLI to set
+        if (!containsAllArgument(inputMeasures)) {
+            for (auto it = inputMeasures.begin(); it != inputMeasures.end(); it++) {
+                measures.insert(BethYw::toLower(*it));
+            }
+        }
+
+        //set might be empty or not, depending on if arguments includes all
+        return measures;
+    } catch (const cxxopts::OptionParseException& ex) {
+        //return set that is empty
+        return measures;
+    } catch (const std::domain_error& ex) {
+        return measures;
     }
-
-    //set might be empty or not, depending on if arguments includes all
-    return measures;
-  } catch(const cxxopts::OptionParseException& ex) {
-    //return set that is empty
-    return measures;
-  } catch(const std::domain_error& ex) {
-      return measures;
-  }
 }
 
 /*
@@ -347,67 +352,67 @@ std::unordered_set<std::string> BethYw::parseMeasuresArg(cxxopts::ParseResult& a
     the message: Invalid input for years argument
 */
 std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg(cxxopts::ParseResult& args) {
-  try{
-    auto inputYears = args["years"].as<std::string>();
+    try {
+        auto inputYears = args["years"].as<std::string>();
 
-    //check if string represents an int
-    if(isInt(inputYears)) {
-      int year = std::stoi(inputYears);
+        //check if string represents an int
+        if (isInt(inputYears)) {
+            int year = std::stoi(inputYears);
 
-      if(is4DigitInt(year)) {
-        return std::tuple<unsigned int, unsigned int>(year, year);
+            if (is4DigitInt(year)) {
+                return std::tuple<unsigned int, unsigned int>(year, year);
 
-      } else if (year == 0) {
-        return std::tuple<unsigned int, unsigned int>(0, 0);
+            } else if (year == 0) {
+                return std::tuple<unsigned int, unsigned int>(0, 0);
 
-      } else {
-        throw std::invalid_argument("Invalid input for years argument");
-      }
-    //if that fails, then the argument is not an int, check if it is a range
-    } else {
-      size_t hyphenIndex = inputYears.find('-');
-
-      //if it does not have a hyphen, it is invalid
-      if(hyphenIndex == std::string::npos) {
-        throw std::invalid_argument("Invalid input for years argument");
-      }
-
-      std::string beforeHyphen = inputYears.substr(0, hyphenIndex);
-      std::string afterHyphen = inputYears.substr(hyphenIndex + 1);
-
-      if(isInt(beforeHyphen) && isInt(afterHyphen)) {
-        int firstYear = std::stoi(inputYears.substr(0, hyphenIndex));
-        int secondYear = std::stoi(inputYears.substr(hyphenIndex + 1));
-
-        if(is4DigitInt(firstYear) && is4DigitInt(secondYear)) {
-          return std::tuple<unsigned int, unsigned int>(firstYear, secondYear);
-
-        } else if(firstYear == 0 || secondYear == 0) {
-          return std::tuple<unsigned int, unsigned int>(0, 0);
-
+            } else {
+                throw std::invalid_argument("Invalid input for years argument");
+            }
+            //if that fails, then the argument is not an int, check if it is a range
         } else {
-          throw std::invalid_argument("Invalid input for years argument");
+            size_t hyphenIndex = inputYears.find('-');
+
+            //if it does not have a hyphen, it is invalid
+            if (hyphenIndex == std::string::npos) {
+                throw std::invalid_argument("Invalid input for years argument");
+            }
+
+            std::string beforeHyphen = inputYears.substr(0, hyphenIndex);
+            std::string afterHyphen = inputYears.substr(hyphenIndex + 1);
+
+            if (isInt(beforeHyphen) && isInt(afterHyphen)) {
+                int firstYear = std::stoi(inputYears.substr(0, hyphenIndex));
+                int secondYear = std::stoi(inputYears.substr(hyphenIndex + 1));
+
+                if (is4DigitInt(firstYear) && is4DigitInt(secondYear)) {
+                    return std::tuple<unsigned int, unsigned int>(firstYear, secondYear);
+
+                } else if (firstYear == 0 || secondYear == 0) {
+                    return std::tuple<unsigned int, unsigned int>(0, 0);
+
+                } else {
+                    throw std::invalid_argument("Invalid input for years argument");
+                }
+                //if not both parts of string before and after hyphen are ints, then arg is invalid
+            } else {
+                throw std::invalid_argument("Invalid input for years argument");
+            }
         }
-      //if not both parts of string before and after hyphen are ints, then arg is invalid
-      } else {
-        throw std::invalid_argument("Invalid input for years argument");
-      }
+    } catch (const cxxopts::OptionParseException& ex) {
+        return std::tuple<unsigned int, unsigned int>(0, 0);
+    } catch (const std::domain_error& ex) {
+        return std::tuple<unsigned int, unsigned int>(0, 0);
     }
-  } catch(const cxxopts::OptionParseException& ex) {
-    return std::tuple<unsigned int, unsigned int>(0, 0);
-  } catch(const std::domain_error& ex) {
-      return std::tuple<unsigned int, unsigned int>(0, 0);
-  }
 }
 
 bool BethYw::isInt(const std::string& str) {
-  /*strtol will put a value in end which is the first character after the
-   * integer in the string. We can check if the whole string is an int by 
-   * seeing if end points to the end of string character.*/
-  char* end;
-  strtol(str.c_str(), &end, 10);
+    /*strtol will put a value in end which is the first character after the
+     * integer in the string. We can check if the whole string is an int by
+     * seeing if end points to the end of string character.*/
+    char* end;
+    strtol(str.c_str(), &end, 10);
 
-  return *end == '\0';
+    return *end == '\0';
 }
 
 bool BethYw::is4DigitInt(const int num) {
@@ -482,19 +487,22 @@ void BethYw::loadAreas(Areas& areas, const std::string& filePath, const StringFi
 
   @return
     void
-
-  @example
-    Areas areas();
-
-    BethYw::loadDatasets(
-      areas,
-      "data",
-      BethYw::parseDatasetsArgument(args),
-      BethYw::parseAreasArg(args),
-      BethYw::parseMeasuresArg(args),
-      BethYw::parseYearsArg(args));
 */
+void loadDatasets(Areas& areas, const std::string& dir, const std::vector<BethYw::InputFileSource>& datasetsToImport,
+                  const std::vector<BethYw::InputFileSource>& datasetsFilter,
+                  const std::unordered_set<std::string>& areasFilter,
+                  const std::unordered_set<std::string>& measuresFilter,
+                  const std::tuple<unsigned int, unsigned int>& yearsFilter) noexcept {
 
+    for (auto it = datasetsToImport.begin(); it != datasetsToImport.end(); it++) {
+        try {
+            InputFile file(dir + DIR_SEP + it->FILE);
+            areas.populate(file.open(), it->PARSER, it->COLS, &areasFilter, &measuresFilter, &yearsFilter);
+        } catch (const std::exception& ex) {
+            std::cerr << "Error importing dataset:" << std::endl << ex.what();
+        }
+    }
+}
 
 /*Code inspired from https://thispointer.com/converting-a-string-to-upper-lower-case-in-c-using-stl-boost-library/#:~:text=Convert%20a%20String%20to%20Lower%20Case%20using%20STL&text=int%20tolower%20(%20int%20c%20)%3B,function%20each%20of%20them%20i.e.*/
 std::string BethYw::toLower(const std::string& str) {

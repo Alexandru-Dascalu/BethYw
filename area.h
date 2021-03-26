@@ -33,31 +33,31 @@ using json = nlohmann::json;
 */
 class Area {
 private:
-  const std::string authorityCode;
-  std::unordered_map<std::string, std::string> names;
-  std::map<std::string, Measure> measures;
+    const std::string authorityCode;
+    std::unordered_map<std::string, std::string> names;
+    std::map<std::string, Measure> measures;
 
-  //private function to help me
-  bool hasName(const std::string& langCode) const;
+    //private function to help me
+    bool hasName(const std::string& langCode) const;
 
 public:
-  Area(const std::string& localAuthorityCode);
+    Area(const std::string& localAuthorityCode);
 
-  //public method required by the cw
-  const std::string& getLocalAuthorityCode() const noexcept;
-  const std::string& getName(const std::string& langCode) const;
-  void setName(const std::string& lang, const std::string& name);
+    //public method required by the cw
+    const std::string& getLocalAuthorityCode() const noexcept;
 
-  Measure& getMeasure(const std::string& key);
-  void setMeasure(const std::string& codename, const Measure& measure) noexcept;
+    const std::string& getName(const std::string& langCode) const;
+    void setName(const std::string& lang, const std::string& name);
 
-  int size() const noexcept;
+    Measure& getMeasure(const std::string& key);
+    void setMeasure(const std::string& codename, const Measure& measure) noexcept;
 
-  Area& operator=(const Area& other);
-  friend std::ostream& operator<<(std::ostream& stream, const Area& area);
-  friend bool operator==(const Area& lhs, const Area& rhs);
+    int size() const noexcept;
 
-  friend void to_json(json& j, const Area& area);
+    Area& operator=(const Area& other);
+    friend std::ostream& operator<<(std::ostream& stream, const Area& area);
+    friend bool operator==(const Area& lhs, const Area& rhs);
+    friend void to_json(json& j, const Area& area);
 };
 
 #endif // AREA_H_

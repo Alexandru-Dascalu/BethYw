@@ -29,12 +29,14 @@
 */
 class InputSource {
 private:
-  const std::string source;
+    const std::string source;
 protected:
-  InputSource(const std::string& source);
+    InputSource(const std::string& source);
+
 public:
-  const std::string& getSource() const noexcept;
-  virtual std::istream& open() = 0;
+    const std::string& getSource() const noexcept;
+
+    virtual std::istream& open() = 0;
 };
 
 /*
@@ -43,11 +45,11 @@ public:
 */
 class InputFile : public InputSource {
 private:
-  std::ifstream fileInputStream;
+    std::ifstream fileInputStream;
 public:
-  InputFile(const std::string& filePath);
+    InputFile(const std::string& filePath);
 
-  virtual std::istream& open();
+    virtual std::istream& open();
 };
 
 #endif // INPUT_H_

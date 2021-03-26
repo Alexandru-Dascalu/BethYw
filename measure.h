@@ -26,40 +26,44 @@
 */
 class Measure {
 private:
-  const std::string code;
-  std::string label;
-  /*Chose map as the container as it has logarithmic complexity for accessing 
-   * and inserting elements, and because it is ordered and thus I can iterate 
-   * over the years in ascending order automatically.*/
-  std::map<int, double> values;
+    const std::string code;
+    std::string label;
+    /*Chose map as the container as it has logarithmic complexity for accessing
+     * and inserting elements, and because it is ordered and thus I can iterate
+     * over the years in ascending order automatically.*/
+    std::map<int, double> values;
 
-  //these ones are used to format the string output of the measure object
-  static std::string formatYear(const Measure& measure, int year);
-  static std::string formatValue(const Measure& measure, double value);
-  static std::string formatHeading(const Measure& measure, std::string& heading);
+    //these ones are used to format the string output of the measure object
+    static std::string formatYear(const Measure& measure, int year);
 
-  //private method used when printing measure
-  int getMaxValueWidth() const noexcept;
+    static std::string formatValue(const Measure& measure, double value);
+
+    static std::string formatHeading(const Measure& measure, std::string& heading);
+
+    //private method used when printing measure
+    int getMaxValueWidth() const noexcept;
+
 public:
-  Measure(const std::string& code, const std::string& label);
+    Measure(const std::string& code, const std::string& label);
 
-  const std::string& getCodename() const noexcept;
-  const std::string& getLabel() const noexcept;
-  void setLabel(const std::string& newLabel) noexcept;
+    const std::string& getCodename() const noexcept;
+    const std::string& getLabel() const noexcept;
+    void setLabel(const std::string& newLabel) noexcept;
 
-  double getValue(int year) const;
-  void setValue(const unsigned int& year, const double& value) noexcept;
+    double getValue(int year) const;
+    void setValue(const unsigned int& year, const double& value) noexcept;
 
-  int size() const noexcept;
-  double getDifference() const noexcept;
-  double getDifferenceAsPercentage() const noexcept;
-  double getAverage() const noexcept;
+    int size() const noexcept;
+    double getDifference() const noexcept;
+    double getDifferenceAsPercentage() const noexcept;
+    double getAverage() const noexcept;
 
-  friend std::ostream& operator<<(std::ostream& stream, const Measure& measure);
-  friend bool operator==(const Measure& lhs, const Measure& rhs);
-  Measure& operator=(const Measure& other);
+    friend std::ostream& operator<<(std::ostream& stream, const Measure& measure);
+    friend bool operator==(const Measure& lhs, const Measure& rhs);
 
-  friend void to_json(nlohmann::json& j, const Measure& measure);
+    Measure& operator=(const Measure& other);
+
+    friend void to_json(nlohmann::json& j, const Measure& measure);
 };
 
 #endif // MEASURE_H_

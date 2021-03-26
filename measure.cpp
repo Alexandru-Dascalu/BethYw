@@ -42,7 +42,8 @@ using json = nlohmann::json;
   @param label
     Human-readable (i.e. nice/explanatory) label for the measure.
 */
-Measure::Measure(const std::string& codename, const std::string& label) : code(BethYw::toLower(codename)), label(label) {
+Measure::Measure(const std::string& codename, const std::string& label) : code(BethYw::toLower(codename)),
+                                                                          label(label) {
 
 }
 
@@ -55,7 +56,7 @@ Measure::Measure(const std::string& codename, const std::string& label) : code(B
     The codename for the Measure.
 */
 const std::string& Measure::getCodename() const noexcept {
-  return code;
+    return code;
 }
 
 /*
@@ -67,7 +68,7 @@ const std::string& Measure::getCodename() const noexcept {
     The human-friendly label for the Measure.
 */
 const std::string& Measure::getLabel() const noexcept {
-  return label;
+    return label;
 }
 
 /*
@@ -77,7 +78,7 @@ const std::string& Measure::getLabel() const noexcept {
     The new label for the Measure.
 */
 void Measure::setLabel(const std::string& newLabel) noexcept {
-  label = newLabel;
+    label = newLabel;
 }
 
 /*
@@ -97,11 +98,11 @@ void Measure::setLabel(const std::string& newLabel) noexcept {
     The value.
 */
 double Measure::getValue(int year) const {
-  try {
-    return values.at(year);
-  } catch (const std::out_of_range& ex) {
-    throw std::out_of_range(std::string("No value found for year ") + std::to_string(year));
-  }
+    try {
+        return values.at(year);
+    } catch (const std::out_of_range& ex) {
+        throw std::out_of_range(std::string("No value found for year ") + std::to_string(year));
+    }
 }
 
 /*
@@ -115,7 +116,7 @@ double Measure::getValue(int year) const {
     The value for the given year.
 */
 void Measure::setValue(const unsigned int& year, const double& value) noexcept {
-  values[year] = value;
+    values[year] = value;
 }
 
 /*
@@ -127,7 +128,7 @@ void Measure::setValue(const unsigned int& year, const double& value) noexcept {
     The size of the measure.
 */
 int Measure::size() const noexcept {
-  return values.size();
+    return values.size();
 }
 
 /*
@@ -140,14 +141,14 @@ int Measure::size() const noexcept {
     cannot be calculated.
 */
 double Measure::getDifference() const noexcept {
-  if(!values.empty()) {
-     double firstValue = values.begin()->second;
-     double secondValue = values.rbegin()->second;
+    if (!values.empty()) {
+        double firstValue = values.begin()->second;
+        double secondValue = values.rbegin()->second;
 
-     return secondValue - firstValue;
-  } else {
-    return 0;
-  }
+        return secondValue - firstValue;
+    } else {
+        return 0;
+    }
 }
 
 /*
@@ -160,13 +161,13 @@ double Measure::getDifference() const noexcept {
     value, or 0 if it cannot be calculated.
 */
 double Measure::getDifferenceAsPercentage() const noexcept {
-  if(!values.empty()) {
-    double firstValue = values.begin()->second;
+    if (!values.empty()) {
+        double firstValue = values.begin()->second;
 
-    return (getDifference() / firstValue) * 100;
-  } else {
-    return 0;
-  }
+        return (getDifference() / firstValue) * 100;
+    } else {
+        return 0;
+    }
 }
 
 /*
@@ -178,18 +179,18 @@ double Measure::getDifferenceAsPercentage() const noexcept {
     The average value for all the years, or 0 if it cannot be calculated.
 */
 double Measure::getAverage() const noexcept {
-  if(!values.empty()) {
-    double sum = 0;
+    if (!values.empty()) {
+        double sum = 0;
 
-    for(auto it = values.begin(); it != values.end(); it++) {
-      sum += it->second;
+        for (auto it = values.begin(); it != values.end(); it++) {
+            sum += it->second;
+        }
+
+        double average = sum / values.size();
+        return average;
+    } else {
+        return 0;
     }
-
-    double average = sum / values.size();
-    return average;
-  } else {
-    return 0;
-  }
 }
 
 /*
@@ -219,92 +220,92 @@ double Measure::getAverage() const noexcept {
     Reference to the output stream
 */
 std::ostream& operator<<(std::ostream& stream, const Measure& measure) {
-  stream << measure.getLabel() << " (" << measure.getCodename() << ")" << std::endl;
+    stream << measure.getLabel() << " (" << measure.getCodename() << ")" << std::endl;
 
-  for(auto it = measure.values.begin(); it != measure.values.end(); it++) {
-    stream << Measure::formatYear(measure, it->first); 
-  }
+    for (auto it = measure.values.begin(); it != measure.values.end(); it++) {
+        stream << Measure::formatYear(measure, it->first);
+    }
 
-  /*I chose to make a variable for the heading string so I could pass it in as
-   * a reference to the format function, which is not possible for literal strings.*/
-  std::string heading = "Average";
-  stream << Measure::formatHeading(measure, heading);
-  heading = "Diff.";
-  stream << Measure::formatHeading(measure, heading);
-  heading = "% Diff.";
-  stream << Measure::formatHeading(measure, heading);
-  stream << std::endl;
+    /*I chose to make a variable for the heading string so I could pass it in as
+     * a reference to the format function, which is not possible for literal strings.*/
+    std::string heading = "Average";
+    stream << Measure::formatHeading(measure, heading);
+    heading = "Diff.";
+    stream << Measure::formatHeading(measure, heading);
+    heading = "% Diff.";
+    stream << Measure::formatHeading(measure, heading);
+    stream << std::endl;
 
-  for(auto it = measure.values.begin(); it != measure.values.end(); it++) {
-    stream << Measure::formatValue(measure, it->second);
-  }
+    for (auto it = measure.values.begin(); it != measure.values.end(); it++) {
+        stream << Measure::formatValue(measure, it->second);
+    }
 
-  stream << Measure::formatValue(measure, measure.getAverage());
-  stream << Measure::formatValue(measure, measure.getDifference());
-  stream << Measure::formatValue(measure, measure.getDifferenceAsPercentage());
-  stream << std::endl;
+    stream << Measure::formatValue(measure, measure.getAverage());
+    stream << Measure::formatValue(measure, measure.getDifference());
+    stream << Measure::formatValue(measure, measure.getDifferenceAsPercentage());
+    stream << std::endl;
 
-  return stream;
+    return stream;
 }
 
 std::string Measure::formatYear(const Measure& measure, int year) {
-  /*width is width before decimal point + 6 digits after decimal point + 1 for 
-   * the decimal points*/
-  int formattedYearWidth = measure.getMaxValueWidth() + 7;
-  //add 2 to account for space after and end of string character
-  std::vector<char> buffer = std::vector<char>(formattedYearWidth + 2);
+    /*width is width before decimal point + 6 digits after decimal point + 1 for
+     * the decimal points*/
+    int formattedYearWidth = measure.getMaxValueWidth() + 7;
+    //add 2 to account for space after and end of string character
+    std::vector<char> buffer = std::vector<char>(formattedYearWidth + 2);
 
-  /*using string stream instead of making a stream directly with concatenation as 
-   * in C++ you can not concatenate ints, doubles and C-style strings with strings
-   * and I have to make some explicit conversions.*/
-  std::stringstream formatStream;
-  formatStream << "%" << formattedYearWidth << "d ";
+    /*using string stream instead of making a stream directly with concatenation as
+     * in C++ you can not concatenate ints, doubles and C-style strings with strings
+     * and I have to make some explicit conversions.*/
+    std::stringstream formatStream;
+    formatStream << "%" << formattedYearWidth << "d ";
 
-  if(snprintf(buffer.data(), formattedYearWidth + 2, formatStream.str().c_str(), 
-      year) < 0) {
+    if (snprintf(buffer.data(), formattedYearWidth + 2, formatStream.str().c_str(),
+                 year) < 0) {
 
-    throw std::ios_base::failure(std::string("Formatting year string failed for ") + std::to_string(year));
-  }
+        throw std::ios_base::failure(std::string("Formatting year string failed for ") + std::to_string(year));
+    }
 
-  return std::string(buffer.data());
+    return std::string(buffer.data());
 }
 
 std::string Measure::formatValue(const Measure& measure, double value) {
-  /*width is width before decimal point + 6 digits after decimal point + 1 for 
-   * the decimal points*/
-  int formattedValueWidth = measure.getMaxValueWidth() + 7;
-  //add 2 to account for space after and end of string character
-  std::vector<char> buffer = std::vector<char>(formattedValueWidth + 2);
+    /*width is width before decimal point + 6 digits after decimal point + 1 for
+     * the decimal points*/
+    int formattedValueWidth = measure.getMaxValueWidth() + 7;
+    //add 2 to account for space after and end of string character
+    std::vector<char> buffer = std::vector<char>(formattedValueWidth + 2);
 
-  /*using string stream instead of making a stream directly with concatenation as 
-   * in C++ you can not concatenate ints, doubles and C-style strings with strings
-   * and I have to make some explicit conversions.*/
-  std::stringstream formatStream;
-  formatStream << "%" << formattedValueWidth << ".6f ";
+    /*using string stream instead of making a stream directly with concatenation as
+     * in C++ you can not concatenate ints, doubles and C-style strings with strings
+     * and I have to make some explicit conversions.*/
+    std::stringstream formatStream;
+    formatStream << "%" << formattedValueWidth << ".6f ";
 
-  if(snprintf(buffer.data(), formattedValueWidth + 2, formatStream.str().c_str(), 
-      value) < 0) {
+    if (snprintf(buffer.data(), formattedValueWidth + 2, formatStream.str().c_str(),
+                 value) < 0) {
 
-    throw std::ios_base::failure(std::string("Formatting value string failed for ") +
-      std::to_string(value));
-  }
+        throw std::ios_base::failure(std::string("Formatting value string failed for ") +
+                                     std::to_string(value));
+    }
 
-  return std::string(buffer.data()); 
+    return std::string(buffer.data());
 }
 
 std::string Measure::formatHeading(const Measure& measure, std::string& heading) {
-  /*width is width before decimal point + 6 digits after decimal point + 1 for 
-   * the decimal points*/
-  int formattedStringWidth = measure.getMaxValueWidth() + 7;
-  //add 2 to account for space after and end of string character
-  std::vector<char> buffer = std::vector<char>(formattedStringWidth + 2);
-  
-  if(snprintf(buffer.data(), formattedStringWidth + 2, "%s ", heading.c_str()) < 0) {
+    /*width is width before decimal point + 6 digits after decimal point + 1 for
+     * the decimal points*/
+    int formattedStringWidth = measure.getMaxValueWidth() + 7;
+    //add 2 to account for space after and end of string character
+    std::vector<char> buffer = std::vector<char>(formattedStringWidth + 2);
 
-    throw std::ios_base::failure("Formatting string failed");
-  }
+    if (snprintf(buffer.data(), formattedStringWidth + 2, "%s ", heading.c_str()) < 0) {
 
-  return std::string(buffer.data());
+        throw std::ios_base::failure("Formatting string failed");
+    }
+
+    return std::string(buffer.data());
 }
 
 /*Calculates the width of the maximum value stored by this measure. By width, 
@@ -315,35 +316,35 @@ std::string Measure::formatHeading(const Measure& measure, std::string& heading)
     contains no values, it will return 0.
 */
 int Measure::getMaxValueWidth() const noexcept {
-  /*If the measure has values, find the maximum one and calculate its width.*/
-  if(!values.empty()) {
-    double max = values.begin()->second;
+    /*If the measure has values, find the maximum one and calculate its width.*/
+    if (!values.empty()) {
+        double max = values.begin()->second;
 
-    for(auto it = values.begin(); it != values.end(); it++) {
-      if(max < it->second) {
-        max = it->second;
-      }
-    }
+        for (auto it = values.begin(); it != values.end(); it++) {
+            if (max < it->second) {
+                max = it->second;
+            }
+        }
 
-    /*If max is 1 or larger, we can use log base 10 to calculate its width.*/
-    if(max >= 1) {
-      //log base 10 of 10 is 1, so we add 1 to get 2 digits 
-      int numDigitsInMax = log10(max) + 1;
-      return numDigitsInMax;
-    /*If max is -1 or larger, we can use log base 10 to calculate its width,
-     * but after we get its positive counterpart. We will add 1 to the width
-     * to account for the minus sign before the number.*/
-    } else if(max <= -1) {
-      int numDigitsInMax = log10(-max) + 1;
-      return numDigitsInMax + 1;
-    //if max is between -1 and 1, before the decimal point it just has the digit 0
+        /*If max is 1 or larger, we can use log base 10 to calculate its width.*/
+        if (max >= 1) {
+            //log base 10 of 10 is 1, so we add 1 to get 2 digits
+            int numDigitsInMax = log10(max) + 1;
+            return numDigitsInMax;
+            /*If max is -1 or larger, we can use log base 10 to calculate its width,
+             * but after we get its positive counterpart. We will add 1 to the width
+             * to account for the minus sign before the number.*/
+        } else if (max <= -1) {
+            int numDigitsInMax = log10(-max) + 1;
+            return numDigitsInMax + 1;
+            //if max is between -1 and 1, before the decimal point it just has the digit 0
+        } else {
+            return 1;
+        }
+        //if measure has no values, there is no width to calculate.
     } else {
-      return 1;
+        return 0;
     }
-  //if measure has no values, there is no width to calculate.
-  } else {
-    return 0;
-  }
 }
 
 /*
@@ -361,11 +362,11 @@ int Measure::getMaxValueWidth() const noexcept {
     otherwise
 */
 bool operator==(const Measure& lhs, const Measure& rhs) {
-  bool equalCodes = lhs.code == rhs.code;
-  bool equalLabels = lhs.label == rhs.label;
-  bool equalMeasureValues = lhs.values == rhs.values;
+    bool equalCodes = lhs.code == rhs.code;
+    bool equalLabels = lhs.label == rhs.label;
+    bool equalMeasureValues = lhs.values == rhs.values;
 
-  return equalCodes && equalLabels && equalMeasureValues;
+    return equalCodes && equalLabels && equalMeasureValues;
 }
 
 /*
@@ -380,11 +381,11 @@ bool operator==(const Measure& lhs, const Measure& rhs) {
     reference to ths measure
 */
 Measure& Measure::operator=(const Measure& other) {
-  for(auto it = other.values.begin(); it != other.values.end(); it++) {
-    values[it->first] = it->second;
-  }
+    for (auto it = other.values.begin(); it != other.values.end(); it++) {
+        values[it->first] = it->second;
+    }
 
-  return *this;
+    return *this;
 }
 
 void to_json(json& j, const Measure& measure) {

@@ -36,8 +36,8 @@ using json = nlohmann::json;
     Area("W06000023");
 */
 Area::Area(const std::string& localAuthorityCode) : authorityCode(BethYw::toUpper(localAuthorityCode)),
-  names(std::unordered_map<std::string, std::string>()), 
-  measures(std::map<std::string, Measure>()) {
+                                                    names(std::unordered_map<std::string, std::string>()),
+                                                    measures(std::map<std::string, Measure>()) {
 
 }
 
@@ -49,7 +49,7 @@ Area::Area(const std::string& localAuthorityCode) : authorityCode(BethYw::toUppe
     The Area's local authority code
 */
 const std::string& Area::getLocalAuthorityCode() const noexcept {
-  return authorityCode;
+    return authorityCode;
 }
 
 /*
@@ -67,7 +67,7 @@ const std::string& Area::getLocalAuthorityCode() const noexcept {
     inside the Area instance
 */
 const std::string& Area::getName(const std::string& langCode) const {
-  return names.at(langCode);
+    return names.at(langCode);
 }
 
 /*
@@ -80,7 +80,7 @@ const std::string& Area::getName(const std::string& langCode) const {
     True if the area has a name for that language code.
 */
 bool Area::hasName(const std::string& langCode) const {
-  return names.find(langCode) != names.end();
+    return names.find(langCode) != names.end();
 }
 
 /*
@@ -97,27 +97,26 @@ bool Area::hasName(const std::string& langCode) const {
     std::invalid_argument if lang is not a three letter alphabetic code
 */
 void Area::setName(const std::string& lang, const std::string& name) {
-  if(lang.length() != 3) {
-    throw std::invalid_argument("Area::setName: Language code must be three alphabetical letters only");
-  }
-
-  bool isAlphabetic = true;
-  for(auto it = lang.begin(); it != lang.end(); it++) {
-    if(!std::isalpha(*it)) {
-      isAlphabetic = false;
+    if (lang.length() != 3) {
+        throw std::invalid_argument("Area::setName: Language code must be three alphabetical letters only");
     }
-  }
 
-  if(!isAlphabetic) {
-    throw std::invalid_argument("Area::setName: Language code must be three alphabetical letters only");
-  }
+    bool isAlphabetic = true;
+    for (auto it = lang.begin(); it != lang.end(); it++) {
+        if (!std::isalpha(*it)) {
+            isAlphabetic = false;
+        }
+    }
 
-  /*param reference could be to a string outside the function we should not 
-   *change, therefore we make a copy before we make the string lower case.*/
-  std::string lowerCaseLanguageCode = BethYw::toLower(lang);
-  names[lowerCaseLanguageCode] = name;
+    if (!isAlphabetic) {
+        throw std::invalid_argument("Area::setName: Language code must be three alphabetical letters only");
+    }
+
+    /*param reference could be to a string outside the function we should not
+     *change, therefore we make a copy before we make the string lower case.*/
+    std::string lowerCaseLanguageCode = BethYw::toLower(lang);
+    names[lowerCaseLanguageCode] = name;
 }
-
 
 /*
   Retrieve a Measure object, given its codename. This function should be case
@@ -135,15 +134,15 @@ void Area::setName(const std::string& lang, const std::string& name) {
     No measure found matching <codename>
 */
 Measure& Area::getMeasure(const std::string& key) {
-  /*param reference could be to a string outside the function we should not 
-   *change, therefore we make a copy before we make the string lower case.*/
-  std::string lowerCaseKey = BethYw::toLower(key);
+    /*param reference could be to a string outside the function we should not
+     *change, therefore we make a copy before we make the string lower case.*/
+    std::string lowerCaseKey = BethYw::toLower(key);
 
-  try {
-    return measures.at(key);
-  } catch (std::out_of_range& ex) {
-    throw std::out_of_range(std::string("No measure found matching ") + key);
-  }
+    try {
+        return measures.at(key);
+    } catch (std::out_of_range& ex) {
+        throw std::out_of_range(std::string("No measure found matching ") + key);
+    }
 }
 
 /*
@@ -165,15 +164,15 @@ Measure& Area::getMeasure(const std::string& key) {
     void
 */
 void Area::setMeasure(const std::string& codename, const Measure& measure) noexcept {
-  /*param reference could be to a string outside the function we should not 
-   *change, therefore we make a copy before we make the string lower case.*/
-  std::string lowerCaseName = BethYw::toLower(codename);
+    /*param reference could be to a string outside the function we should not
+     *change, therefore we make a copy before we make the string lower case.*/
+    std::string lowerCaseName = BethYw::toLower(codename);
 
-  if(measures.find(lowerCaseName) == measures.end()) {
-    measures.insert(std::pair<std::string, Measure>(lowerCaseName, measure));
-  } else {
-    measures.find(lowerCaseName)->second = measure;
-  }
+    if (measures.find(lowerCaseName) == measures.end()) {
+        measures.insert(std::pair<std::string, Measure>(lowerCaseName, measure));
+    } else {
+        measures.find(lowerCaseName)->second = measure;
+    }
 }
 
 /*
@@ -185,7 +184,7 @@ void Area::setMeasure(const std::string& codename, const Measure& measure) noexc
     The size of the Area (i.e., the number of Measures)
 */
 int Area::size() const noexcept {
-  return measures.size();
+    return measures.size();
 }
 
 /*
@@ -213,26 +212,26 @@ int Area::size() const noexcept {
     Reference to the output stream
 */
 std::ostream& operator<<(std::ostream& stream, const Area& area) {
-  bool hasEnglishName = area.hasName("eng");
-  bool hasWelshName = area.hasName("cym");
+    bool hasEnglishName = area.hasName("eng");
+    bool hasWelshName = area.hasName("cym");
 
-  if(hasEnglishName && hasWelshName) {
-    stream << area.getName("eng") << " / " << area.getName("cym");
-  } else if (hasEnglishName) {
-    stream << area.getName("eng");
-  } else if (hasWelshName) {
-    stream << area.getName("cym");
-  } else {
-    stream << "Unnamed";
-  }
+    if (hasEnglishName && hasWelshName) {
+        stream << area.getName("eng") << " / " << area.getName("cym");
+    } else if (hasEnglishName) {
+        stream << area.getName("eng");
+    } else if (hasWelshName) {
+        stream << area.getName("cym");
+    } else {
+        stream << "Unnamed";
+    }
 
-  stream << " (" << area.getLocalAuthorityCode() << ")" << std::endl;
+    stream << " (" << area.getLocalAuthorityCode() << ")" << std::endl;
 
-  for(auto it = area.measures.begin(); it != area.measures.end(); it++) {
-    stream << it->second << std::endl;
-  }
+    for (auto it = area.measures.begin(); it != area.measures.end(); it++) {
+        stream << it->second << std::endl;
+    }
 
-  return stream;
+    return stream;
 }
 
 /*
@@ -251,15 +250,15 @@ std::ostream& operator<<(std::ostream& stream, const Area& area) {
     and data; false otherwise.
 */
 bool operator==(const Area& lhs, const Area& rhs) {
-  if(lhs.getLocalAuthorityCode() == rhs.getLocalAuthorityCode()) {
-    if(lhs.names == rhs.names) {
-      if(lhs.measures == rhs.measures) {
-        return true;
-      }
+    if (lhs.getLocalAuthorityCode() == rhs.getLocalAuthorityCode()) {
+        if (lhs.names == rhs.names) {
+            if (lhs.measures == rhs.measures) {
+                return true;
+            }
+        }
     }
-  }
 
-  return false;
+    return false;
 }
 
 /*
@@ -274,15 +273,15 @@ bool operator==(const Area& lhs, const Area& rhs) {
     reference to ths area
 */
 Area& Area::operator=(const Area& other) {
-    for(auto it = other.names.begin(); it != other.names.end(); it++) {
+    for (auto it = other.names.begin(); it != other.names.end(); it++) {
         this->names[it->first] = it->second;
     }
 
-    for(auto it = other.measures.begin(); it != other.measures.end(); it++) {
+    for (auto it = other.measures.begin(); it != other.measures.end(); it++) {
         /*We need to check if each measure of other is already in this area. This is because Measure has no constructor
          * with no arguments, and therefore it can not be called if we just did this->measure[it->first] = it->second.
          * When the measure is not already in this area, we need to manually make a pair and insert it.*/
-        if(this->measures.find(it->first) != this->measures.end()) {
+        if (this->measures.find(it->first) != this->measures.end()) {
             this->measures.at(it->first) = it->second;
         } else {
             this->measures.insert(std::make_pair(it->first, it->second));
@@ -293,5 +292,5 @@ Area& Area::operator=(const Area& other) {
 }
 
 void to_json(json& j, const Area& area) {
-    j = json{{ {"names", area.names}, {"measures", area.measures} }};
+    j = json{{{"names", area.names}, {"measures", area.measures}}};
 }

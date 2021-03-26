@@ -70,47 +70,50 @@ private:
 
     //private functions to help with calculations
     static unsigned int parseYear(const std::string& str);
+
     static bool isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data,
                                    bool caseSensitive);
-    static bool isInYearRange(const std::tuple<unsigned  int, unsigned int>* const yearRange, unsigned int year);
+
+    static bool isInYearRange(const std::tuple<unsigned int, unsigned int>* const yearRange, unsigned int year);
 
 public:
-  Areas();
+    Areas();
 
-  void setArea(const std::string& localAuthorityCode, const Area& area) noexcept;
-  Area& getArea(const std::string& localAuthorityCode);
-  int size() const noexcept;
-  
-  void populateFromAuthorityCodeCSV(
-      std::istream& is,
-      const BethYw::SourceColumnMapping& cols,
-      const StringFilterSet* const areas = nullptr)
-      noexcept(false);
+    void setArea(const std::string& localAuthorityCode, const Area& area) noexcept;
+
+    Area& getArea(const std::string& localAuthorityCode);
+
+    int size() const noexcept;
+
+    void populateFromAuthorityCodeCSV(
+            std::istream& is,
+            const BethYw::SourceColumnMapping& cols,
+            const StringFilterSet* const areas = nullptr)
+    noexcept(false);
 
     void populateFromWelshStatsJSON(std::istream& is, const BethYw::SourceColumnMapping& cols,
                                     const std::unordered_set<std::string>* const areasFilter,
                                     const std::unordered_set<std::string>* const measuresFilter,
                                     const std::tuple<unsigned int, unsigned int>* const yearsFilter);
 
-  void populate(
-      std::istream& is,
-      const BethYw::SourceDataType& type,
-      const BethYw::SourceColumnMapping& cols) noexcept(false);
+    void populate(
+            std::istream& is,
+            const BethYw::SourceDataType& type,
+            const BethYw::SourceColumnMapping& cols) noexcept(false);
 
-  void populate(
-      std::istream& is,
-      const BethYw::SourceDataType& type,
-      const BethYw::SourceColumnMapping& cols,
-      const StringFilterSet* const areasFilter = nullptr,
-      const StringFilterSet* const measuresFilter = nullptr,
-      const YearFilterTuple* const yearsFilter = nullptr)
-      noexcept(false);
+    void populate(
+            std::istream& is,
+            const BethYw::SourceDataType& type,
+            const BethYw::SourceColumnMapping& cols,
+            const StringFilterSet* const areasFilter = nullptr,
+            const StringFilterSet* const measuresFilter = nullptr,
+            const YearFilterTuple* const yearsFilter = nullptr) noexcept(false);
 
-  std::string toJSON() const;
+    std::string toJSON() const;
 
-  friend std::ostream& operator<<(std::ostream& stream, const Areas& data);
+    friend std::ostream& operator<<(std::ostream& stream, const Areas& data);
 
-  friend void to_json(json& j, const Areas& areas);
+    friend void to_json(json& j, const Areas& areas);
 };
 
 #endif // AREAS_H

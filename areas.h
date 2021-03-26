@@ -75,6 +75,7 @@ private:
                                    bool caseSensitive);
 
     static bool isInYearRange(const std::tuple<unsigned int, unsigned int>* const yearRange, unsigned int year);
+    static const json& safeGet(const json& data, const std::string& key);
 
 public:
     Areas();
@@ -112,7 +113,6 @@ public:
     std::string toJSON() const;
 
     friend std::ostream& operator<<(std::ostream& stream, const Areas& data);
-
     friend void to_json(json& j, const Areas& areas);
 };
 

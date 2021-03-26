@@ -243,32 +243,29 @@ void Areas::populateFromWelshStatsJSON(std::istream& is, const BethYw::SourceCol
     is >> j;
 
     bool isTrainDataset = cols == BethYw::InputFiles::TRAINS.COLS;
+    auto& jsonUsefulData = Areas::safeGet(j, "value");
 
-    for (auto& element: j.at("value").items()) {
+    for (auto& element: jsonUsefulData.items()) {
         auto& data = element.value();
-        const std::string& authorityCode = data.at(cols.at(BethYw::SourceColumn::AUTH_CODE));
+        const std::string& authorityCode = Areas::safeGet(data, cols.at(BethYw::SourceColumn::AUTH_CODE));
 
         if (Areas::isIncludedInFilter(areasFilter, authorityCode, true)) {
             /*I wanted to have the measure code be a const reference, and thus it needs to be initialized when it is
              * declared. Therefore, I could only do it with a ternary operator. If the dataset file is the train one,
              * the measure code is a hardcoded value, else it is a value we need to read from the json data.*/
-            const std::string& measureCode = isTrainDataset ? BethYw::InputFiles::TRAINS.COLS.at(
-                    BethYw::SourceColumn::SINGLE_MEASURE_CODE)
-                                                            : (const std::string&) data.at(
-                            cols.at(BethYw::SourceColumn::MEASURE_CODE));
+            const std::string& measureCode = isTrainDataset ? BethYw::InputFiles::TRAINS.COLS.at(BethYw::SourceColumn::SINGLE_MEASURE_CODE)
+                    : (const std::string&) Areas::safeGet(data, cols.at(BethYw::SourceColumn::MEASURE_CODE));
 
             if (Areas::isIncludedInFilter(measuresFilter, measureCode, false)) {
-                unsigned int year = Areas::parseYear(data.at(cols.at(BethYw::SourceColumn::YEAR)));
+                unsigned int year = Areas::parseYear(Areas::safeGet(data, cols.at(BethYw::SourceColumn::YEAR)));
 
                 if (Areas::isInYearRange(yearsFilter, year)) {
-                    const std::string& areaEngName = data.at(cols.at(BethYw::SourceColumn::AUTH_NAME_ENG));
-                    const double value = data.at(cols.at(BethYw::SourceColumn::VALUE));
+                    const std::string& areaEngName = Areas::safeGet(data, cols.at(BethYw::SourceColumn::AUTH_NAME_ENG));
+                    const double value = Areas::safeGet(data, cols.at(BethYw::SourceColumn::VALUE));
 
                     //same as before with the measure code, we need to check if the file is the train dataset
-                    const std::string& measureLabel = isTrainDataset ? BethYw::InputFiles::TRAINS.COLS.at(
-                            BethYw::SourceColumn::SINGLE_MEASURE_NAME)
-                                                                     : (const std::string&) data.at(
-                                    cols.at(BethYw::SourceColumn::MEASURE_NAME));
+                    const std::string& measureLabel = isTrainDataset ? BethYw::InputFiles::TRAINS.COLS.at(BethYw::SourceColumn::SINGLE_MEASURE_NAME)
+                            : (const std::string&) Areas::safeGet(data, cols.at(BethYw::SourceColumn::MEASURE_NAME));
 
                     /* we use the logic in the overloaded copy assignment operators to insert the new area/measure, or
                      * merge them with existing objects.*/
@@ -286,20 +283,31 @@ void Areas::populateFromWelshStatsJSON(std::istream& is, const BethYw::SourceCol
     }
 }
 
+/*
+ * Thin wrapper over the json.at method. The block comment for loadFromWelshStats requires that runtime_error be thrown
+ * when the json file is malformed. The json.at() method throws out_of_range when trying to access a key that does not
+ * exist. This method catches that error and throws runtime_error in its place, to conform to the specifications.*/
+const json& Areas::safeGet(const json& data, const std::string& key) {
+    try {
+        return data.at(key);
+    } catch (const std::out_of_range& ex) {
+        throw std::runtime_error(std::string("Malformed JSON file! No value for key:") + key);
+    }
+}
+
 bool Areas::isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data,
                                bool toUpper) {
     if (filter->empty()) {
         return true;
     } else {
-        for (auto it = filter->begin(); it != filter->end(); it++) {
-            if (toUpper) {
-                std::string upperCaseData = BethYw::toUpper(data);
-                return upperCaseData == *it;
-            } else {
-                std::string lowerCaseData = BethYw::toLower(data);
+        if (toUpper) {
+            std::string upperCaseData = BethYw::toUpper(data);
 
-                return lowerCaseData == *it;
-            }
+            return filter->find(upperCaseData) != filter->end();
+        } else {
+            std::string lowerCaseData = BethYw::toLower(data);
+
+            return filter->find(lowerCaseData) != filter->end();
         }
 
         return false;

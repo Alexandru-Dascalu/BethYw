@@ -448,8 +448,12 @@ bool BethYw::is4DigitInt(const int num) {
     void
 */
 void BethYw::loadAreas(Areas& areas, const std::string& filePath, const StringFilterSet& filters) {
-    InputFile file(filePath);
-    areas.populate(file.open(), BethYw::AuthorityCodeCSV, BethYw::InputFiles::AREAS.COLS, &filters);
+    try {
+        InputFile file(filePath);
+        areas.populate(file.open(), BethYw::AuthorityCodeCSV, BethYw::InputFiles::AREAS.COLS, &filters);
+    } catch (const std::exception& ex) {
+        std::cerr << "Error importing dataset:" << std::endl << ex.what();
+    }
 }
 
 /*

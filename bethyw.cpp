@@ -488,8 +488,7 @@ void BethYw::loadAreas(Areas& areas, const std::string& filePath, const StringFi
   @return
     void
 */
-void loadDatasets(Areas& areas, const std::string& dir, const std::vector<BethYw::InputFileSource>& datasetsToImport,
-                  const std::vector<BethYw::InputFileSource>& datasetsFilter,
+void BethYw::loadDatasets(Areas& areas, const std::string& dir, const std::vector<BethYw::InputFileSource>& datasetsToImport,
                   const std::unordered_set<std::string>& areasFilter,
                   const std::unordered_set<std::string>& measuresFilter,
                   const std::tuple<unsigned int, unsigned int>& yearsFilter) noexcept {

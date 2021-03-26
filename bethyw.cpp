@@ -408,15 +408,27 @@ std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg(cxxopts::ParseResul
 bool BethYw::isInt(const std::string& str) {
     /*strtol will put a value in end which is the first character after the
      * integer in the string. We can check if the whole string is an int by
-     * seeing if end points to the end of string character.*/
-    char* end;
-    strtol(str.c_str(), &end, 10);
+     * seeing if end points to the end of string character. For some reason the second argument needs to be a pointer
+     * to a pointer.*/
+    char* endptr;
+    strtol(str.c_str(), &endptr, 10);
 
-    return *end == '\0';
+    return *endptr == '\0';
 }
 
 bool BethYw::is4DigitInt(const int num) {
     return 999 < num && num < 10000;
+}
+
+bool BethYw::isDouble(const std::string& str) {
+    /*strtol will put a value in end which is the first character after the
+     * integer in the string. We can check if the whole string is an int by
+     * seeing if end points to the end of string character. For some reason the second argument needs to be a pointer
+     * to a pointer.*/
+    char* endptr;
+    std::strtod(str.c_str(), &endptr);
+
+    return *endptr == '\0';
 }
 
 /*

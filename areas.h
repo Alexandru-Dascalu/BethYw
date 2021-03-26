@@ -76,6 +76,7 @@ private:
 
     static bool isInYearRange(const std::tuple<unsigned int, unsigned int>* const yearRange, unsigned int year);
     static const json& safeGet(const json& data, const std::string& key);
+    static std::vector<unsigned int> getYears(std::stringstream& lineStream);
 
 public:
     Areas();
@@ -96,6 +97,11 @@ public:
                                     const std::unordered_set<std::string>* const areasFilter,
                                     const std::unordered_set<std::string>* const measuresFilter,
                                     const std::tuple<unsigned int, unsigned int>* const yearsFilter);
+
+    void populateFromAuthorityByYearCSV(std::istream& is, const BethYw::SourceColumnMapping& cols,
+                                               const std::unordered_set<std::string>* const areasFilter = nullptr,
+                                               const std::unordered_set<std::string>* const measuresFilter = nullptr,
+                                               const std::tuple<unsigned int, unsigned int>* const yearsFilter = nullptr);
 
     void populate(
             std::istream& is,

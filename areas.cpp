@@ -297,7 +297,7 @@ const json& Areas::safeGet(const json& data, const std::string& key) {
 
 bool Areas::isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data,
                                bool toUpper) {
-    if (filter->empty()) {
+    if (filter == nullptr || filter->empty()) {
         return true;
     } else {
         if (toUpper) {
@@ -376,29 +376,90 @@ unsigned int Areas::parseYear(const std::string& str) {
   @return
     void
 
-  @see
-    See datasets.h for details of how the variable cols is organised
-
-  @see
-    See bethyw.cpp for details of how the variable areasFilter is created
-
-  @example
-    InputFile input("data/complete-popu1009-pop.csv");
-    auto is = input.open();
-
-    auto cols = InputFiles::DATASETS["complete-pop"].COLS;
-
-    auto areasFilter = BethYw::parseAreasArg();
-    auto yearsFilter = BethYw::parseYearsArg();
-
-    Areas data = Areas();
-    areas.populateFromAuthorityCodeCSV(is, cols, &areasFilter, &yearsFilter);
-
   @throws 
     std::runtime_error if a parsing error occurs (e.g. due to a malformed file)
     std::out_of_range if there are not enough columns in cols
 */
+void Areas::populateFromAuthorityByYearCSV(std::istream& is, const BethYw::SourceColumnMapping& cols,
+                                           const std::unordered_set<std::string>* const areasFilter,
+                                           const std::unordered_set<std::string>* const measuresFilter,
+                                           const std::tuple<unsigned int, unsigned int>* const yearsFilter) {
 
+    if (cols.size() != 3) {
+        throw std::out_of_range("Not enough columns in cols mapping!");
+    }
+
+    const std::string& measureCode = cols.at(BethYw::SourceColumn::SINGLE_MEASURE_CODE);
+    const std::string& measureLabel = cols.at(BethYw::SourceColumn::SINGLE_MEASURE_NAME);
+
+    if(Areas::isIncludedInFilter(measuresFilter, measureCode, false)) {
+        std::string line;
+        std::stringstream lineStream;
+
+        //read first row, load it in string stream and load years
+        std::getline(is, line);
+        if(line.empty()) {
+            throw std::runtime_error("CSV file is empty!");
+        }
+
+        lineStream.str(line);
+        lineStream.clear();
+        std::vector<unsigned int> years = Areas::getYears(lineStream);
+
+        while(std::getline(is, line)) {
+            lineStream.str(line);
+            lineStream.clear();
+
+            std::string authorityCode;
+            std::getline(lineStream, authorityCode, ',');
+
+            if(Areas::isIncludedInFilter(areasFilter, authorityCode, true)) {
+                Area newArea = Area(authorityCode);
+                Measure newMeasure = Measure(measureCode, measureLabel);
+
+                std::string value;
+                for(auto it = years.begin(); it != years.end(); it++) {
+                    if(Areas::isInYearRange(yearsFilter, *it)) {
+                        std::getline(lineStream, value, ',');
+                        if(value.empty()) {
+                            throw std::runtime_error("Not enough values for all years in authority by year CSV file!");
+                        }
+
+                        if(BethYw::isDouble(value)) {
+                            double numericalValue = std::stod(value);
+                            newMeasure.setValue(*it, numericalValue);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+std::vector<unsigned int> Areas::getYears(std::stringstream& lineStream) {
+    std::vector<unsigned int> years;
+    std::string buffer;
+
+    //throw away first element, it is just the heading for the authority code
+    std::getline(lineStream, buffer, ',');
+
+    while(std::getline(lineStream, buffer, ',')) {
+        if (BethYw::isInt(buffer)) {
+            int year = std::stoi(buffer);
+
+            if (BethYw::is4DigitInt(year)) {
+                years.push_back(year);
+
+            } else {
+                throw std::runtime_error(std::string("Year is not a 4 digit int") + std::to_string(year));
+            }
+        } else {
+            throw std::runtime_error(std::string("Can not be parsed as year :") + buffer);
+        }
+    }
+
+    return years;
+}
 
 /*
   Parse data from an standard input stream `is`, that has data of a particular
@@ -442,6 +503,8 @@ void Areas::populate(std::istream& is, const BethYw::SourceDataType& type,
         const std::tuple<unsigned int, unsigned int> emptyRange = std::make_tuple(0, 0);
 
         populateFromWelshStatsJSON(is, cols, &emptySet, &emptySet, &emptyRange);
+    } else if(type == BethYw::AuthorityByYearCSV) {
+        populateFromAuthorityByYearCSV(is, cols, nullptr, nullptr, nullptr);
     } else {
         throw std::runtime_error("Areas::populate: Unexpected data type");
     }
@@ -505,7 +568,9 @@ void Areas::populate(std::istream& is, const BethYw::SourceDataType& type, const
         populateFromAuthorityCodeCSV(is, cols, areasFilter);
     } else if (type == BethYw::WelshStatsJSON) {
         populateFromWelshStatsJSON(is, cols, areasFilter, measuresFilter, yearsFilter);
-    } else {
+    } else if(type == BethYw::AuthorityByYearCSV) {
+        populateFromAuthorityByYearCSV(is, cols, areasFilter, measuresFilter, yearsFilter);
+    }  else {
         throw std::runtime_error("Areas::populate: Unexpected data type");
     }
 }

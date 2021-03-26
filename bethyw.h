@@ -72,9 +72,11 @@ namespace BethYw {
     */
     std::tuple<unsigned int, unsigned int> parseYearsArg(cxxopts::ParseResult& args);
 
-    //other helper functions I made to help with parsing years, should be private
+    /*other helper functions I made to help with parsing years, they are also used in areas.cpp in
+     * populateFromAuthorityByYearCSV*/
     bool is4DigitInt(const int num);
     bool isInt(const std::string& str);
+    bool isDouble(const std::string& str);
 
     //helper function used in other files, should be public
     std::string toLower(const std::string& str);

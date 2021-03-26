@@ -35,7 +35,7 @@ using json = nlohmann::json;
   @example
     Area("W06000023");
 */
-Area::Area(const std::string& localAuthorityCode) : authorityCode(localAuthorityCode), 
+Area::Area(const std::string& localAuthorityCode) : authorityCode(BethYw::toUpper(localAuthorityCode)),
   names(std::unordered_map<std::string, std::string>()), 
   measures(std::map<std::string, Measure>()) {
 

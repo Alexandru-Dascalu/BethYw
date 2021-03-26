@@ -301,17 +301,19 @@ void Areas::populateFromWelshStatsJSON(std::istream &is, const BethYw::SourceCol
     }
 }
 
-bool Areas::isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data, bool caseSensitive) {
+bool Areas::isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data,
+                               bool toUpper) {
     if(filter->empty()) {
         return true;
     } else {
         for(auto it = filter->begin(); it != filter->end(); it++) {
-            if(caseSensitive) {
-                return data == *it;
+            if(toUpper) {
+                std::string upperCaseData = BethYw::toUpper(data);
+                return upperCaseData == *it;
             } else {
-                std::string lowercaseData = BethYw::toLower(data);
+                std::string lowerCaseData = BethYw::toLower(data);
 
-                return lowercaseData == *it;
+                return lowerCaseData == *it;
             }
         }
 

@@ -261,7 +261,15 @@ void Areas::populateFromWelshStatsJSON(std::istream& is, const BethYw::SourceCol
 
                 if (Areas::isInYearRange(yearsFilter, year)) {
                     const std::string& areaEngName = Areas::safeGet(data, cols.at(BethYw::SourceColumn::AUTH_NAME_ENG));
-                    const double value = Areas::safeGet(data, cols.at(BethYw::SourceColumn::VALUE));
+
+                    double value = 0;
+                    //unlike the others, environment data set stores the double values as strings. We need to account for that.
+                    if(cols == BethYw::InputFiles::AQI.COLS) {
+                        std::string valueAsString = Areas::safeGet(data, cols.at(BethYw::SourceColumn::VALUE));
+                        value = std::stod(valueAsString);
+                    } else {
+                        value = Areas::safeGet(data, cols.at(BethYw::SourceColumn::VALUE));
+                    }
 
                     //same as before with the measure code, we need to check if the file is the train dataset
                     const std::string& measureLabel = isTrainDataset ? BethYw::InputFiles::TRAINS.COLS.at(BethYw::SourceColumn::SINGLE_MEASURE_NAME)

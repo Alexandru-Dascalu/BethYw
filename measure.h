@@ -34,12 +34,10 @@ private:
     std::map<int, double> values;
 
     //these ones are used to format the string output of the measure object
-    static std::string formatYear(const Measure& measure, int year);
-    static std::string formatValue(const Measure& measure, double value);
-    static std::string formatHeading(const Measure& measure, std::string& heading);
-
-    //private method used when printing measure
-    int getMaxValueWidth() const noexcept;
+    static std::string formatYear(const Measure& measure, int year, int formatWidth);
+    static std::string formatValue(const Measure& measure, double value, int formatWidth);
+    static std::string formatHeading(const Measure& measure, std::string& heading, int formatWidth);
+    static int getValueWidth(double value) noexcept;
 
 public:
     Measure(const std::string& code, const std::string& label);

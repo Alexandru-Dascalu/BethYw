@@ -661,7 +661,7 @@ void to_json(json& j, const Areas& areas) {
 */
 std::ostream& operator<<(std::ostream& stream, const Areas& data) {
     for (auto it = data.areas.begin(); it != data.areas.end(); it++) {
-        stream << it->second << std::endl;
+        stream << it->second;
     }
 
     return stream;

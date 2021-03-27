@@ -227,9 +227,14 @@ std::ostream& operator<<(std::ostream& stream, const Area& area) {
 
     stream << " (" << area.getLocalAuthorityCode() << ")" << std::endl;
 
-    for (auto it = area.measures.begin(); it != area.measures.end(); it++) {
-        stream << it->second << std::endl;
+    if(!area.measures.empty()) {
+        for (auto it = area.measures.begin(); it != area.measures.end(); it++) {
+            stream << it->second << std::endl;
+        }
+    } else {
+        stream << "<no measures>" << std::endl << std::endl;
     }
+
 
     return stream;
 }

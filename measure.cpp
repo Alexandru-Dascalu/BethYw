@@ -223,46 +223,47 @@ std::ostream& operator<<(std::ostream& stream, const Measure& measure) {
     stream << measure.getLabel() << " (" << measure.getCodename() << ")" << std::endl;
 
     for (auto it = measure.values.begin(); it != measure.values.end(); it++) {
-        stream << Measure::formatYear(measure, it->first);
+        stream << Measure::formatYear(measure, it->first, Measure::getValueWidth(it->second));
     }
+
+    /*We get these values now because we need them to calculate the width for the formatted heading.*/
+    double average = measure.getAverage();
+    double difference = measure.getDifference();
+    double differencePercentage = measure.getDifference();
 
     /*I chose to make a variable for the heading string so I could pass it in as
      * a reference to the format function, which is not possible for literal strings.*/
     std::string heading = "Average";
-    stream << Measure::formatHeading(measure, heading);
+    stream << Measure::formatHeading(measure, heading, Measure::getValueWidth(average));
     heading = "Diff.";
-    stream << Measure::formatHeading(measure, heading);
+    stream << Measure::formatHeading(measure, heading, Measure::getValueWidth(difference));
     heading = "% Diff.";
-    stream << Measure::formatHeading(measure, heading);
+    stream << Measure::formatHeading(measure, heading, Measure::getValueWidth(difference));
     stream << std::endl;
 
     for (auto it = measure.values.begin(); it != measure.values.end(); it++) {
-        stream << Measure::formatValue(measure, it->second);
+        stream << Measure::formatValue(measure, it->second, Measure::getValueWidth(it->second));
     }
 
-    stream << Measure::formatValue(measure, measure.getAverage());
-    stream << Measure::formatValue(measure, measure.getDifference());
-    stream << Measure::formatValue(measure, measure.getDifferenceAsPercentage());
+    stream << Measure::formatValue(measure, average, Measure::getValueWidth(average));
+    stream << Measure::formatValue(measure, difference, Measure::getValueWidth(difference));
+    stream << Measure::formatValue(measure, differencePercentage, Measure::getValueWidth(difference));
     stream << std::endl;
 
     return stream;
 }
 
-std::string Measure::formatYear(const Measure& measure, int year) {
-    /*width is width before decimal point + 6 digits after decimal point + 1 for
-     * the decimal points*/
-    int formattedYearWidth = measure.getMaxValueWidth() + 7;
+std::string Measure::formatYear(const Measure& measure, int year, int formatWidth) {
     //add 2 to account for space after and end of string character
-    std::vector<char> buffer = std::vector<char>(formattedYearWidth + 2);
+    std::vector<char> buffer = std::vector<char>(formatWidth + 2);
 
     /*using string stream instead of making a stream directly with concatenation as
      * in C++ you can not concatenate ints, doubles and C-style strings with strings
      * and I have to make some explicit conversions.*/
     std::stringstream formatStream;
-    formatStream << "%" << formattedYearWidth << "d ";
+    formatStream << "%" << formatWidth << "d ";
 
-    if (snprintf(buffer.data(), formattedYearWidth + 2, formatStream.str().c_str(),
-                 year) < 0) {
+    if (snprintf(buffer.data(), formatWidth + 2, formatStream.str().c_str(), year) < 0) {
 
         throw std::ios_base::failure(std::string("Formatting year string failed for ") + std::to_string(year));
     }
@@ -270,21 +271,17 @@ std::string Measure::formatYear(const Measure& measure, int year) {
     return std::string(buffer.data());
 }
 
-std::string Measure::formatValue(const Measure& measure, double value) {
-    /*width is width before decimal point + 6 digits after decimal point + 1 for
-     * the decimal points*/
-    int formattedValueWidth = measure.getMaxValueWidth() + 7;
+std::string Measure::formatValue(const Measure& measure, double value, int formatWidth) {
     //add 2 to account for space after and end of string character
-    std::vector<char> buffer = std::vector<char>(formattedValueWidth + 2);
+    std::vector<char> buffer = std::vector<char>(formatWidth + 2);
 
     /*using string stream instead of making a stream directly with concatenation as
      * in C++ you can not concatenate ints, doubles and C-style strings with strings
      * and I have to make some explicit conversions.*/
     std::stringstream formatStream;
-    formatStream << "%" << formattedValueWidth << ".6f ";
+    formatStream << "%" << formatWidth << ".6f ";
 
-    if (snprintf(buffer.data(), formattedValueWidth + 2, formatStream.str().c_str(),
-                 value) < 0) {
+    if (snprintf(buffer.data(), formatWidth + 2, formatStream.str().c_str(), value) < 0) {
 
         throw std::ios_base::failure(std::string("Formatting value string failed for ") +
                                      std::to_string(value));
@@ -293,14 +290,17 @@ std::string Measure::formatValue(const Measure& measure, double value) {
     return std::string(buffer.data());
 }
 
-std::string Measure::formatHeading(const Measure& measure, std::string& heading) {
-    /*width is width before decimal point + 6 digits after decimal point + 1 for
-     * the decimal points*/
-    int formattedStringWidth = measure.getMaxValueWidth() + 7;
+std::string Measure::formatHeading(const Measure& measure, std::string& heading, int formatWidth) {
     //add 2 to account for space after and end of string character
-    std::vector<char> buffer = std::vector<char>(formattedStringWidth + 2);
+    std::vector<char> buffer = std::vector<char>(formatWidth + 2);
 
-    if (snprintf(buffer.data(), formattedStringWidth + 2, "%s ", heading.c_str()) < 0) {
+    /*using string stream instead of making a stream directly with concatenation as
+     * in C++ you can not concatenate ints, doubles and C-style strings with strings
+     * String width is incremented by to account for space after.*/
+    std::stringstream formatStream;
+    formatStream << "%" << formatWidth << "s ";
+
+    if (snprintf(buffer.data(), formatWidth + 2, formatStream.str().c_str(), heading.c_str()) < 0) {
 
         throw std::ios_base::failure("Formatting string failed");
     }
@@ -309,42 +309,37 @@ std::string Measure::formatHeading(const Measure& measure, std::string& heading)
 }
 
 /*Calculates the width of the maximum value stored by this measure. By width, 
-  we mean the number of digits before the decimal point.
+  we mean the number of characters needed to print this double value as a real
+  number with 6 digits after the decimal point.
 
   @return
     Width of maximum value of this measure, as an int. If the measure 
     contains no values, it will return 0.
 */
-int Measure::getMaxValueWidth() const noexcept {
-    /*If the measure has values, find the maximum one and calculate its width.*/
-    if (!values.empty()) {
-        double max = values.begin()->second;
 
-        for (auto it = values.begin(); it != values.end(); it++) {
-            if (max < it->second) {
-                max = it->second;
-            }
-        }
+/*Calculates the width of a double. By width, we mean the number of characters needed
+ * to print this double value as a real number with 6 digits after the decimal point.*/
+int Measure::getValueWidth(double value) noexcept {
+    int digitsBeforeDecimalPoint = 0;
 
-        /*If max is 1 or larger, we can use log base 10 to calculate its width.*/
-        if (max >= 1) {
-            //log base 10 of 10 is 1, so we add 1 to get 2 digits
-            int numDigitsInMax = log10(max) + 1;
-            return numDigitsInMax;
-            /*If max is -1 or larger, we can use log base 10 to calculate its width,
-             * but after we get its positive counterpart. We will add 1 to the width
-             * to account for the minus sign before the number.*/
-        } else if (max <= -1) {
-            int numDigitsInMax = log10(-max) + 1;
-            return numDigitsInMax + 1;
-            //if max is between -1 and 1, before the decimal point it just has the digit 0
-        } else {
-            return 1;
-        }
-        //if measure has no values, there is no width to calculate.
+    /*If value is 1 or larger, we can use log base 10 to calculate its width.*/
+    if (value >= 1) {
+        //log base 10 of 10 is 1, so we add 1 to get 2 digits
+        digitsBeforeDecimalPoint = log10(value) + 1;
+
+    /*If max is -1 or larger, we can use log base 10 to calculate its width,
+     * but after we get its positive counterpart. We will add 1 to the width
+     * to account for the minus sign before the number.*/
+    } else if (value <= -1) {
+        digitsBeforeDecimalPoint = log10(-value) + 1;
+
+    //if max is between -1 and 1, before the decimal point it just has the digit 0
     } else {
-        return 0;
+        digitsBeforeDecimalPoint = 1;
     }
+
+    //add 7 for decimal point and 6 digits after decimal point
+    return digitsBeforeDecimalPoint + 7;
 }
 
 /*

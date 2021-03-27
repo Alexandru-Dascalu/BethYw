@@ -34,9 +34,6 @@ using json = nlohmann::json;
 
 /*
   Constructor for an Areas object.
-
-  @example
-    Areas data = Areas();
 */
 Areas::Areas() : areas(std::map<std::string, Area>()) {
 
@@ -95,14 +92,6 @@ Area& Areas::getArea(const std::string& localAuthorityCode) {
 
   @return
     The number of Area instances
-
-  @example
-    Areas data = Areas();
-    std::string localAuthorityCode = "W06000023";
-    Area area(localAuthorityCode);
-    data.setArea(localAuthorityCode, area);
-    
-    auto size = areas.size(); // returns 1
 */
 int Areas::size() const noexcept {
     return areas.size();
@@ -248,20 +237,24 @@ void Areas::populateFromWelshStatsJSON(std::istream& is, const BethYw::SourceCol
     for (auto& element: jsonUsefulData.items()) {
         auto& data = element.value();
         const std::string& authorityCode = Areas::safeGet(data, cols.at(BethYw::SourceColumn::AUTH_CODE));
+        const std::string& areaEngName = Areas::safeGet(data, cols.at(BethYw::SourceColumn::AUTH_NAME_ENG));
 
-        if (Areas::isIncludedInFilter(areasFilter, authorityCode, true)) {
+        if (Areas::isIncludedInFilter(areasFilter, authorityCode, true) ||
+                Areas::isIncludedInFilter(areasFilter, areaEngName, true)) {
+
             /*I wanted to have the measure code be a const reference, and thus it needs to be initialized when it is
              * declared. Therefore, I could only do it with a ternary operator. If the dataset file is the train one,
              * the measure code is a hardcoded value, else it is a value we need to read from the json data.*/
             const std::string& measureCode = isTrainDataset ? BethYw::InputFiles::TRAINS.COLS.at(BethYw::SourceColumn::SINGLE_MEASURE_CODE)
                     : (const std::string&) Areas::safeGet(data, cols.at(BethYw::SourceColumn::MEASURE_CODE));
+            const std::string& measureLabel = isTrainDataset ? BethYw::InputFiles::TRAINS.COLS.at(BethYw::SourceColumn::SINGLE_MEASURE_NAME)
+                    : (const std::string&) Areas::safeGet(data, cols.at(BethYw::SourceColumn::MEASURE_NAME));
 
             if (Areas::isIncludedInFilter(measuresFilter, measureCode, false)) {
+
                 unsigned int year = Areas::parseYear(Areas::safeGet(data, cols.at(BethYw::SourceColumn::YEAR)));
 
                 if (Areas::isInYearRange(yearsFilter, year)) {
-                    const std::string& areaEngName = Areas::safeGet(data, cols.at(BethYw::SourceColumn::AUTH_NAME_ENG));
-
                     double value = 0;
                     //unlike the others, environment data set stores the double values as strings. We need to account for that.
                     if(cols == BethYw::InputFiles::AQI.COLS) {
@@ -270,10 +263,6 @@ void Areas::populateFromWelshStatsJSON(std::istream& is, const BethYw::SourceCol
                     } else {
                         value = Areas::safeGet(data, cols.at(BethYw::SourceColumn::VALUE));
                     }
-
-                    //same as before with the measure code, we need to check if the file is the train dataset
-                    const std::string& measureLabel = isTrainDataset ? BethYw::InputFiles::TRAINS.COLS.at(BethYw::SourceColumn::SINGLE_MEASURE_NAME)
-                            : (const std::string&) Areas::safeGet(data, cols.at(BethYw::SourceColumn::MEASURE_NAME));
 
                     /* we use the logic in the overloaded copy assignment operators to insert the new area/measure, or
                      * merge them with existing objects.*/
@@ -303,22 +292,37 @@ const json& Areas::safeGet(const json& data, const std::string& key) {
     }
 }
 
+/*Checks if the given filter allows for the given data to be included in the program output. The booleas flag says if
+ * the given string data should be made to be lowercase or uppercase before the check happens.*/
 bool Areas::isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data,
                                bool toUpper) {
+    if (toUpper) {
+        std::string upperCaseData = BethYw::toUpper(data);
+        return Areas::isIncludedInFilter(filter, upperCaseData);
+    } else {
+        std::string lowerCaseData = BethYw::toLower(data);
+        return Areas::isIncludedInFilter(filter, lowerCaseData);
+    }
+}
+
+/*Checks if the given filter allows for the given data to be included in the program output. If the filter is null or
+ * empty, all data is included. Otherwise, the data is included if it is in the filter, or if the filter contains a
+ * string that is a substring of the data.*/
+bool Areas::isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data) {
     if (filter == nullptr || filter->empty()) {
         return true;
     } else {
-        if (toUpper) {
-            std::string upperCaseData = BethYw::toUpper(data);
-
-            return filter->find(upperCaseData) != filter->end();
+        if (filter->find(data) != filter->end()) {
+            return true;
         } else {
-            std::string lowerCaseData = BethYw::toLower(data);
+            for (auto it = filter->begin(); it != filter->end(); it++) {
+                if (data.find(*it) != std::string::npos) {
+                    return true;
+                }
+            }
 
-            return filter->find(lowerCaseData) != filter->end();
+            return false;
         }
-
-        return false;
     }
 }
 
@@ -332,6 +336,7 @@ bool Areas::isInYearRange(const std::tuple<unsigned int, unsigned int>* const ye
     }
 }
 
+/*Tries to parse the given string as an unsigned int. Throws an exception if that can not be done.*/
 unsigned int Areas::parseYear(const std::string& str) {
     /*strtol will put a value in end which is the first character after the
      * integer in the string. We can check if the whole string is an int by
@@ -427,9 +432,9 @@ void Areas::populateFromAuthorityByYearCSV(std::istream& is, const BethYw::Sourc
                 Area newArea = Area(authorityCode);
                 Measure newMeasure = Measure(measureCode, measureLabel);
 
-                std::string value;
                 for (auto it = years.begin(); it != years.end(); it++) {
                     if (Areas::isInYearRange(yearsFilter, *it)) {
+                        std::string value;
                         std::getline(lineStream, value, ',');
                         if (value.empty()) {
                             throw std::runtime_error("Not enough values for all years in authority by year CSV file!");
@@ -449,6 +454,8 @@ void Areas::populateFromAuthorityByYearCSV(std::istream& is, const BethYw::Sourc
     }
 }
 
+/*Processes the first line of an Authority By Year CSV file to extract a vector containing all the years for the
+ * measure in that file.*/
 std::vector<unsigned int> Areas::getYears(std::stringstream& lineStream) {
     std::vector<unsigned int> years;
     std::string buffer;
@@ -462,7 +469,6 @@ std::vector<unsigned int> Areas::getYears(std::stringstream& lineStream) {
 
             if (BethYw::is4DigitInt(year)) {
                 years.push_back(year);
-
             } else {
                 throw std::runtime_error(std::string("Year is not a 4 digit int") + std::to_string(year));
             }
@@ -474,6 +480,7 @@ std::vector<unsigned int> Areas::getYears(std::stringstream& lineStream) {
     return years;
 }
 
+/*If the given string ends in a new line character, it removes that character.*/
 void Areas::removeEndline(std::string& str) {
     char lastChar = *str.rbegin();
     if(lastChar == '\r' || lastChar == '\n') {
@@ -629,6 +636,8 @@ std::string Areas::toJSON() const {
     }
 }
 
+/*Function that converts this to json and saves it in the given json object. It is specified in the documentation of
+ * the nlohmann::json library.*/
 void to_json(json& j, const Areas& areas) {
     j = json(areas.areas);
 }

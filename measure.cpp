@@ -220,10 +220,10 @@ double Measure::getAverage() const noexcept {
     Reference to the output stream
 */
 std::ostream& operator<<(std::ostream& stream, const Measure& measure) {
-    stream << measure.getLabel() << " (" << measure.getCodename() << ")" << std::endl;
+    stream << measure.getLabel() << " (" << measure.getCodename() << ") " << std::endl;
 
     for (auto it = measure.values.begin(); it != measure.values.end(); it++) {
-        stream << Measure::formatYear(measure, it->first, Measure::getValueWidth(it->second));
+        stream << Measure::formatYear(it->first, Measure::getValueWidth(it->second));
     }
 
     /*We get these values now because we need them to calculate the width for the formatted heading.*/
@@ -234,26 +234,27 @@ std::ostream& operator<<(std::ostream& stream, const Measure& measure) {
     /*I chose to make a variable for the heading string so I could pass it in as
      * a reference to the format function, which is not possible for literal strings.*/
     std::string heading = "Average";
-    stream << Measure::formatHeading(measure, heading, Measure::getValueWidth(average));
+    stream << Measure::formatHeading(heading, Measure::getValueWidth(average));
     heading = "Diff.";
-    stream << Measure::formatHeading(measure, heading, Measure::getValueWidth(difference));
+    stream << Measure::formatHeading(heading, Measure::getValueWidth(difference));
     heading = "% Diff.";
-    stream << Measure::formatHeading(measure, heading, Measure::getValueWidth(difference));
+    stream << Measure::formatHeading(heading, Measure::getValueWidth(differencePercentage));
     stream << std::endl;
 
     for (auto it = measure.values.begin(); it != measure.values.end(); it++) {
-        stream << Measure::formatValue(measure, it->second, Measure::getValueWidth(it->second));
+        stream << Measure::formatValue(it->second, Measure::getValueWidth(it->second));
     }
 
-    stream << Measure::formatValue(measure, average, Measure::getValueWidth(average));
-    stream << Measure::formatValue(measure, difference, Measure::getValueWidth(difference));
-    stream << Measure::formatValue(measure, differencePercentage, Measure::getValueWidth(difference));
+    stream << Measure::formatValue(average, Measure::getValueWidth(average));
+    stream << Measure::formatValue(difference, Measure::getValueWidth(difference));
+    stream << Measure::formatValue(differencePercentage, Measure::getValueWidth(differencePercentage));
     stream << std::endl;
 
     return stream;
 }
 
-std::string Measure::formatYear(const Measure& measure, int year, int formatWidth) {
+/*Formats the given year as a left aligned integer.*/
+std::string Measure::formatYear(int year, int formatWidth) {
     //add 2 to account for space after and end of string character
     std::vector<char> buffer = std::vector<char>(formatWidth + 2);
 
@@ -271,7 +272,9 @@ std::string Measure::formatYear(const Measure& measure, int year, int formatWidt
     return std::string(buffer.data());
 }
 
-std::string Measure::formatValue(const Measure& measure, double value, int formatWidth) {
+/*Formats the given value as a left aligned floating point number with the given width and 6 digits after the
+ * decimal point.*/
+std::string Measure::formatValue(double value, int formatWidth) {
     //add 2 to account for space after and end of string character
     std::vector<char> buffer = std::vector<char>(formatWidth + 2);
 
@@ -290,7 +293,8 @@ std::string Measure::formatValue(const Measure& measure, double value, int forma
     return std::string(buffer.data());
 }
 
-std::string Measure::formatHeading(const Measure& measure, std::string& heading, int formatWidth) {
+/*Formats the given heading as a left aligned string with the given width.*/
+std::string Measure::formatHeading(std::string& heading, int formatWidth) {
     //add 2 to account for space after and end of string character
     std::vector<char> buffer = std::vector<char>(formatWidth + 2);
 
@@ -308,15 +312,6 @@ std::string Measure::formatHeading(const Measure& measure, std::string& heading,
     return std::string(buffer.data());
 }
 
-/*Calculates the width of the maximum value stored by this measure. By width, 
-  we mean the number of characters needed to print this double value as a real
-  number with 6 digits after the decimal point.
-
-  @return
-    Width of maximum value of this measure, as an int. If the measure 
-    contains no values, it will return 0.
-*/
-
 /*Calculates the width of a double. By width, we mean the number of characters needed
  * to print this double value as a real number with 6 digits after the decimal point.*/
 int Measure::getValueWidth(double value) noexcept {
@@ -331,7 +326,8 @@ int Measure::getValueWidth(double value) noexcept {
      * but after we get its positive counterpart. We will add 1 to the width
      * to account for the minus sign before the number.*/
     } else if (value <= -1) {
-        digitsBeforeDecimalPoint = log10(-value) + 1;
+        /*here we add 2 to also account for the minus sign*/
+        digitsBeforeDecimalPoint = log10(-value) + 2;
 
     //if max is between -1 and 1, before the decimal point it just has the digit 0
     } else {
@@ -383,6 +379,8 @@ Measure& Measure::operator=(const Measure& other) {
     return *this;
 }
 
+/*Function that converts this to json and saves it in the given json object. It is specified in the documentation of
+ * the nlohmann::json library.*/
 void to_json(json& j, const Measure& measure) {
     /*nlohmann json library by default only handles maps properly if the keys can be represented as strings. We will
      * make an identical map to the on in the measure object, but which will have the years as strings*/

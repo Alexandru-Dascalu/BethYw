@@ -6,7 +6,7 @@
   | BETH YW? WELSH GOVERNMENT DATA PARSER |
   +---------------------------------------+
 
-  AUTHOR: <STUDENT NUMBER>
+  AUTHOR: 965337
 
   This file contains the Areas class, which is responsible for parsing data
   from a standard input stream and converting it into a series of objects:
@@ -68,13 +68,14 @@ class Areas {
 private:
     AreasContainer areas;
 
-    //private functions to help with calculations
+    //private functions to help with calculations related to loading data
     static unsigned int parseYear(const std::string& str);
 
     static bool isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data,
                                    bool caseSensitive);
-
+    static bool isIncludedInFilter(const std::unordered_set<std::string>* const filter, const std::string& data);
     static bool isInYearRange(const std::tuple<unsigned int, unsigned int>* const yearRange, unsigned int year);
+
     static const json& safeGet(const json& data, const std::string& key);
     static std::vector<unsigned int> getYears(std::stringstream& lineStream);
     static void removeEndline(std::string& str);

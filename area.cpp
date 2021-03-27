@@ -31,9 +31,6 @@ using json = nlohmann::json;
 
   @param localAuthorityCode
     The local authority code of the Area
-
-  @example
-    Area("W06000023");
 */
 Area::Area(const std::string& localAuthorityCode) : authorityCode(BethYw::toUpper(localAuthorityCode)),
                                                     names(std::unordered_map<std::string, std::string>()),
@@ -296,6 +293,8 @@ Area& Area::operator=(const Area& other) {
     return *this;
 }
 
+/*Function that converts this to json and saves it in the given json object. It is specified in the documentation of
+ * the nlohmann::json library.*/
 void to_json(json& j, const Area& area) {
     if (!area.names.empty() && !area.measures.empty()) {
         j = json{{"names", area.names}, {"measures", area.measures}};

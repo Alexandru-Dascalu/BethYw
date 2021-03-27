@@ -34,9 +34,9 @@ private:
     std::map<int, double> values;
 
     //these ones are used to format the string output of the measure object
-    static std::string formatYear(const Measure& measure, int year, int formatWidth);
-    static std::string formatValue(const Measure& measure, double value, int formatWidth);
-    static std::string formatHeading(const Measure& measure, std::string& heading, int formatWidth);
+    static std::string formatYear(int year, int formatWidth);
+    static std::string formatValue(double value, int formatWidth);
+    static std::string formatHeading(std::string& heading, int formatWidth);
     static int getValueWidth(double value) noexcept;
 
 public:

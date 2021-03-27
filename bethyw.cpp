@@ -169,12 +169,6 @@ cxxopts::Options BethYw::cxxoptsSetup() {
   @throws
     std::invalid_argument if the argument contains an invalid dataset with
     message: No dataset matches key <input code>
-
-  @example
-    auto cxxopts = BethYw::cxxoptsSetup();
-    auto args = cxxopts.parse(argc, argv);
-
-    auto datasetsToImport = BethYw::parseDatasetsArg(args);
  */
 std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(cxxopts::ParseResult& args) {
 
@@ -209,6 +203,8 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(cxxopts::ParseResu
     return datasetsToImport;
 }
 
+/*Get pointer to InputSource object with the given code.
+ * If none is found, return a null pointer.*/
 const BethYw::InputFileSource* BethYw::getInputSource(const std::string& datasetArg) {
     const size_t numDatasets = BethYw::InputFiles::NUM_DATASETS;
     const InputFileSource* const allDatasets = BethYw::InputFiles::DATASETS;
@@ -222,10 +218,10 @@ const BethYw::InputFileSource* BethYw::getInputSource(const std::string& dataset
     return nullptr;
 }
 
-//why does this work if I pass in an unordered set?
 bool BethYw::containsAllArgument(const std::vector<std::string>& arguments) {
     for (auto it = arguments.begin(); it != arguments.end(); it++) {
-        if (*it == "all") {
+        std::string caseInsensitiveArgument = BethYw::toLower(*it);
+        if (caseInsensitiveArgument == "all") {
             return true;
         }
     }
@@ -233,6 +229,7 @@ bool BethYw::containsAllArgument(const std::vector<std::string>& arguments) {
     return false;
 }
 
+//adds all default dataset input files to the given vector
 void BethYw::addAllDatasets(std::vector<BethYw::InputFileSource>& datasetsToImport) {
     const InputFileSource* const allDatasets = BethYw::InputFiles::DATASETS;
     const size_t numDatasets = BethYw::InputFiles::NUM_DATASETS;
@@ -410,6 +407,7 @@ std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg(cxxopts::ParseResul
     }
 }
 
+/*Checks if the contents of the string represent an integer.*/
 bool BethYw::isInt(const std::string& str) {
     /*strtol will put a value in end which is the first character after the
      * integer in the string. We can check if the whole string is an int by
@@ -425,6 +423,7 @@ bool BethYw::is4DigitInt(const int num) {
     return 999 < num && num < 10000;
 }
 
+/*Checks if the contents of the string represent a real number.*/
 bool BethYw::isDouble(const std::string& str) {
     /*strtol will put a value in end which is the first character after the
      * integer in the string. We can check if the whole string is an int by

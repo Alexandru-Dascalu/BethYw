@@ -402,11 +402,13 @@ void Areas::populateFromAuthorityByYearCSV(std::istream& is, const BethYw::Sourc
             throw std::runtime_error("CSV file is empty!");
         }
 
+        Areas::removeEndline(line);
         lineStream.str(line);
         lineStream.clear();
         std::vector<unsigned int> years = Areas::getYears(lineStream);
 
         while (std::getline(is, line)) {
+            Areas::removeEndline(line);
             lineStream.str(line);
             lineStream.clear();
 
@@ -459,6 +461,13 @@ std::vector<unsigned int> Areas::getYears(std::stringstream& lineStream) {
     }
 
     return years;
+}
+
+void Areas::removeEndline(std::string& str) {
+    char lastChar = *str.rbegin();
+    if(lastChar == '\r' || lastChar == '\n') {
+        str.pop_back();
+    }
 }
 
 /*
@@ -599,10 +608,14 @@ void Areas::populate(std::istream& is, const BethYw::SourceDataType& type, const
     std::string of JSON
 */
 std::string Areas::toJSON() const {
-    json j;
-    to_json(j, *this);
+    if(!this->areas.empty()) {
+        json j;
+        to_json(j, *this);
 
-    return j.dump();
+        return j.dump();
+    } else {
+        return "{}";
+    }
 }
 
 void to_json(json& j, const Areas& areas) {

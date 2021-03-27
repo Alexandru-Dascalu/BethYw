@@ -77,6 +77,7 @@ private:
     static bool isInYearRange(const std::tuple<unsigned int, unsigned int>* const yearRange, unsigned int year);
     static const json& safeGet(const json& data, const std::string& key);
     static std::vector<unsigned int> getYears(std::stringstream& lineStream);
+    static void removeEndline(std::string& str);
 
 public:
     Areas();

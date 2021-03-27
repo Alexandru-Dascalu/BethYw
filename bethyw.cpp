@@ -53,8 +53,15 @@ int BethYw::run(int argc, char* argv[]) {
             return 0;
         }
 
+        std::string dir;
         // Parse data directory argument
-        std::string dir = args["dir"].as<std::string>() + DIR_SEP;
+        try {
+            dir = args["dir"].as<std::string>() + DIR_SEP;
+        } catch (const cxxopts::OptionParseException& ex) {
+            dir = std::string("datasets") + DIR_SEP;
+        } catch (const std::domain_error& ex) {
+            dir = std::string("datasets") + DIR_SEP;
+        }
 
         // Parse other arguments and import data
         auto datasetsToImport = BethYw::parseDatasetsArg(args);
@@ -65,7 +72,6 @@ int BethYw::run(int argc, char* argv[]) {
         Areas data = Areas();
 
         BethYw::loadAreas(data, dir, areasFilter);
-
         BethYw::loadDatasets(data,
                              dir,
                              datasetsToImport,
@@ -83,7 +89,7 @@ int BethYw::run(int argc, char* argv[]) {
 
         return 0;
     } catch (const std::exception& ex) {
-        std::cerr << ex.what() << std::endl;
+        std::cerr << ex.what();
         return 1;
     }
 }
@@ -190,11 +196,10 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(cxxopts::ParseResu
                 if (dataset != nullptr) {
                     datasetsToImport.push_back(*dataset);
                 } else {
-                    throw std::invalid_argument("No dataset matches key: invalid");
+                    throw std::invalid_argument(std::string("No dataset matches key: ") + inputDatasets[i]);
                 }
             }
-        }
-        //catch exception thrown when dataset arguments are nor given
+        }//catch exception thrown when dataset arguments are nor given
     } catch (const cxxopts::OptionParseException& ex) {
         addAllDatasets(datasetsToImport);
     } catch (const std::domain_error& ex) {
@@ -461,10 +466,11 @@ bool BethYw::isDouble(const std::string& str) {
 */
 void BethYw::loadAreas(Areas& areas, const std::string& filePath, const StringFilterSet& filters) {
     try {
-        InputFile file(filePath);
+        InputFile file(filePath + std::string("areas.csv"));
         areas.populate(file.open(), BethYw::AuthorityCodeCSV, BethYw::InputFiles::AREAS.COLS, &filters);
-    } catch (const std::exception& ex) {
+    } catch (const std::runtime_error& ex) {
         std::cerr << "Error importing dataset:" << std::endl << ex.what();
+        exit(1);
     }
 }
 
@@ -511,10 +517,11 @@ void BethYw::loadDatasets(Areas& areas, const std::string& dir, const std::vecto
 
     for (auto it = datasetsToImport.begin(); it != datasetsToImport.end(); it++) {
         try {
-            InputFile file(dir + DIR_SEP + it->FILE);
+            InputFile file(dir + it->FILE);
             areas.populate(file.open(), it->PARSER, it->COLS, &areasFilter, &measuresFilter, &yearsFilter);
         } catch (const std::exception& ex) {
             std::cerr << "Error importing dataset:" << std::endl << ex.what();
+            exit(1);
         }
     }
 }

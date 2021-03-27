@@ -35,9 +35,7 @@ private:
 
     //these ones are used to format the string output of the measure object
     static std::string formatYear(const Measure& measure, int year);
-
     static std::string formatValue(const Measure& measure, double value);
-
     static std::string formatHeading(const Measure& measure, std::string& heading);
 
     //private method used when printing measure

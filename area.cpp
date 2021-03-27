@@ -297,5 +297,11 @@ Area& Area::operator=(const Area& other) {
 }
 
 void to_json(json& j, const Area& area) {
-    j = json{{{"names", area.names}, {"measures", area.measures}}};
+    if (!area.names.empty() && !area.measures.empty()) {
+        j = json{{"names", area.names}, {"measures", area.measures}};
+    } else if (!area.names.empty()) {
+        j = json{{"names", area.names}};
+    } else if (!area.measures.empty()) {
+        j = json{{"measures", area.measures}};
+    }
 }

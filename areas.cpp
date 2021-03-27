@@ -433,6 +433,9 @@ void Areas::populateFromAuthorityByYearCSV(std::istream& is, const BethYw::Sourc
                         }
                     }
                 }
+
+                newArea.setMeasure(measureCode, newMeasure);
+                this->setArea(authorityCode, newArea);
             }
         }
     }
@@ -619,7 +622,7 @@ std::string Areas::toJSON() const {
 }
 
 void to_json(json& j, const Areas& areas) {
-    j = json{areas.areas};
+    j = json(areas.areas);
 }
 
 /*
@@ -628,27 +631,6 @@ void to_json(json& j, const Areas& areas) {
   Output should be formatted like the following to pass the tests. Areas should
   be printed, ordered alphabetically by their local authority code. Measures 
   within each Area should be ordered alphabetically by their codename.
-
-  With real data, your output should start like this for the command
-  bethyw --dir <dir> -p popden -y 1991-1993 (truncated for readability):
-
-    Isle of Anglesey / Ynys Môn (W06000001)
-    Land area (area) 
-          1991       1992       1993    Average    Diff.  % Diff. 
-    711.680100 711.680100 711.680100 711.680100 0.000000 0.000000 
-
-    Population density (dens) 
-         1991      1992      1993   Average    Diff.  % Diff. 
-    97.126504 97.486216 98.038430 97.550383 0.911926 0.938905 
-
-    Population (pop) 
-            1991         1992         1993      Average      Diff.  % Diff. 
-    69123.000000 69379.000000 69772.000000 69424.666667 649.000000 0.938906 
-
-
-    Gwynedd / Gwynedd (W06000002)
-    Land area (Area)
-    ...
 
   @param os
     The output stream to write to

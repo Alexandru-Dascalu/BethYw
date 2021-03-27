@@ -384,6 +384,14 @@ Measure& Measure::operator=(const Measure& other) {
 }
 
 void to_json(json& j, const Measure& measure) {
-    j = json{{measure.values}};
+    /*nlohmann json library by default only handles maps properly if the keys can be represented as strings. We will
+     * make an identical map to the on in the measure object, but which will have the years as strings*/
+    std::map<std::string, double> stringMap;
+
+    for(auto it = measure.values.begin(); it != measure.values.end(); it++) {
+        stringMap.insert(std::pair<std::string, double>(std::to_string(it->first), it->second));
+    }
+
+    j = json(stringMap);
 }
 

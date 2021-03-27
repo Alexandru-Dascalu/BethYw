@@ -229,7 +229,7 @@ std::ostream& operator<<(std::ostream& stream, const Measure& measure) {
     /*We get these values now because we need them to calculate the width for the formatted heading.*/
     double average = measure.getAverage();
     double difference = measure.getDifference();
-    double differencePercentage = measure.getDifference();
+    double differencePercentage = measure.getDifferenceAsPercentage();
 
     /*I chose to make a variable for the heading string so I could pass it in as
      * a reference to the format function, which is not possible for literal strings.*/

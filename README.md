@@ -1,5 +1,8 @@
-My implementation does not have any known caveats, to my knowledge I have implemented everything required in the CW 
-with no known bugs. For some reason, my code fails test 12 on CS Autograder, but it passes on my laptop. Moreover, 
+The only major caveat with my code is that when you run the software with arguments such that all data should be 
+imported, at the end of the output the program will complain that a vector has reached maximum size. I am not sure why 
+this is happening or if it can be fixed. 
+
+For some reason, my code fails test 12 on CS Autograder, but it passes on my laptop. Moreover, 
 tests for outputs 4,5,6 and 7 also fail on Autograder, but when ran on my laptop the output is the correct one, and I 
 have used a string comparison web site to conform my program gives the correct output. For some reason, on Autograder 
 the code puts the authority code instead of the measure code, when on my laptop it works correctly.

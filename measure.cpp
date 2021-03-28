@@ -331,7 +331,12 @@ int Measure::getValueWidth(double value) noexcept {
 
     //if max is between -1 and 1, before the decimal point it just has the digit 0
     } else {
-        digitsBeforeDecimalPoint = 1;
+        if(value >= 0) {
+            digitsBeforeDecimalPoint = 1;
+        } else {
+            // if value is negative, we need to add 1 more to account for minus sign
+            digitsBeforeDecimalPoint = 2;
+        }
     }
 
     //add 7 for decimal point and 6 digits after decimal point

@@ -1,3 +1,7 @@
+## BethYw: command-line tool for displaying census data in Wales
+
+This repository contains my implementation for the coursework for the CSC371 C/C++ programming module at Swansea University.
+
 The only major caveat with my code is that when you run the software with arguments such that all data should be 
 imported, at the end of the output the program will complain that a vector has reached maximum size. I am not sure why 
 this is happening or if it can be fixed.
